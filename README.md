@@ -1,2 +1,0 @@
-# curstr
-ey
