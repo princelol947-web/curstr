@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ebook Store — Preview</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-elevated: #171717;
+    --border: #262626;
+    --text: #f5f5f5;
+    --text-muted: #a3a3a3;
+    --text-dim: #737373;
+    --accent: #f59e0b;
+    --accent-hover: #fbbf24;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .logo { font-weight: 600; letter-spacing: -0.02em; }
+  nav .logo span { color: var(--accent); }
+  nav .links { display: flex; gap: 24px; font-size: 14px; color: var(--text-muted); }
+  nav .links a { color: inherit; text-decoration: none; }
+  nav .links a:hover { color: var(--text); }
+  nav .cta {
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .hero-spacer { height: 130vh; position: relative; }
+  .hero-sticky {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    padding: 0 24px;
+    gap: 32px;
+  }
+  @media (min-width: 860px) {
+    .hero-sticky { grid-template-columns: 1fr 1fr; padding: 0 64px; }
+  }
+
+  .eyebrow {
+    color: var(--accent);
+    font-size: 13px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-size: clamp(2.2rem, 6vw, 3.75rem);
+    line-height: 1.05;
+    font-weight: 600;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .lede {
+    margin-top: 24px;
+    color: var(--text-muted);
+    max-width: 420px;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .browse-btn {
+    display: inline-block;
+    margin-top: 32px;
+    background: var(--accent);
+    color: #0a0a0a;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  .browse-btn:hover { background: var(--accent-hover); }
+  .hint {
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .canvas-wrap {
+    height: 55vh;
+    min-height: 320px;
+    cursor: pointer;
+    position: relative;
+  }
+  @media (min-width: 860px) { .canvas-wrap { height: 70vh; } }
+  canvas { display: block; width: 100%; height: 100%; }
+
+  section.catalog {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 80px 24px 40px;
+  }
+  section.catalog h2 {
+    font-size: 1.5rem;
+    margin-bottom: 24px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+  }
+  .card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .card:hover { transform: translateY(-3px); border-color: #3a3a3a; }
+  .cover {
+    aspect-ratio: 3/4;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--accent), #b45309);
+  }
+  .card h3 { font-size: 14px; margin: 0 0 4px; }
+  .card p { font-size: 13px; color: var(--text-dim); margin: 0; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  footer a { color: inherit; text-decoration: none; }
+  footer a:hover { color: var(--text-muted); }
+
+  .banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+    z-index: 30;
+  }
+  .banner button {
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .note {
+    position: fixed;
+    top: 70px;
+    right: 16px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-dim);
+    max-width: 220px;
+    z-index: 15;
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Inkwell<span>.</span></div>
+  <div class="links">
+    <a href="ebooks.html">Browse</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+  </div>
+  <a href="admin/login.html" class="cta" style="text-decoration:none;">Sign in</a>
+</nav>
+
+<div class="hero-spacer" id="heroSpacer">
+  <div class="hero-sticky">
+    <div>
+      <p class="eyebrow">Ebooks</p>
+      <h1>Read something worth<br/>finishing.</h1>
+      <p class="lede">Independently written, sold directly by the author. No middleman, no distributor markup — every copy comes straight from here.</p>
+      <a href="ebooks.html" class="browse-btn">Browse ebooks</a>
+      <p class="hint">↓ scroll to rotate · click the book to pulse</p>
+    </div>
+    <div class="canvas-wrap" id="canvasWrap">
+      <canvas id="three-canvas"></canvas>
+    </div>
+  </div>
+</div>
+
+<section class="catalog" id="catalog">
+  <h2>Latest releases</h2>
+  <div class="grid" id="catalogGrid"></div>
+  <p style="margin-top:20px;"><a href="ebooks.html" style="color:var(--accent);">See all ebooks →</a></p>
+</section>
+
+<footer>
+  <a href="terms.html">Terms &amp; Conditions</a>
+  <a href="privacy.html">Privacy Policy</a>
+  <a href="refund-policy.html">Refund Policy</a>
+</footer>
+
+<div class="banner" id="cookieBanner">
+  <p style="margin:0; max-width:640px;">This site uses basic analytics and stores your email if you make a purchase, so we can deliver your ebook.</p>
+  <button id="acceptCookies">Got it</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="ebooks-data.js"></script>
+<script>
+  // Render first 4 ebooks as the homepage preview grid
+  const grid = document.getElementById('catalogGrid');
+  EBOOKS.slice(0, 4).forEach(b => {
+    grid.insertAdjacentHTML('beforeend', `
+      <a href="ebooks.html" class="card" style="text-decoration:none;color:inherit;display:block;">
+        <div class="cover" style="background:${b.color}"></div>
+        <h3>${b.title}</h3>
+        <p>${b.price}</p>
+      </a>
+    `);
+  });
+</script>
+  // Cookie banner (in-memory only, no localStorage per artifact rules)
+  document.getElementById('acceptCookies').addEventListener('click', () => {
+    document.getElementById('cookieBanner').style.display = 'none';
+  });
+
+  // --- Three.js scene: floating "book" that rotates on scroll, pulses on click ---
+  const canvas = document.getElementById('three-canvas');
+  const wrap = document.getElementById('canvasWrap');
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+  camera.position.set(0, 0, 4.5);
+
+  const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+  const dir = new THREE.DirectionalLight(0xffffff, 1.2);
+  dir.position.set(3, 3, 3);
+  scene.add(ambient, dir);
+
+  const geometry = new THREE.BoxGeometry(1.4, 2, 0.15);
+  const material = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.3, roughness: 0.4 });
+  const book = new THREE.Mesh(geometry, material);
+  scene.add(book);
+
+  function resize() {
+    const w = wrap.clientWidth, h = wrap.clientHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let scrollProgress = 0;
+  function updateScrollProgress() {
+    const spacer = document.getElementById('heroSpacer');
+    const rect = spacer.getBoundingClientRect();
+    const total = rect.height + window.innerHeight;
+    let p = (window.innerHeight - rect.top) / total;
+    p = Math.min(Math.max(p, 0), 1);
+    scrollProgress = p;
+  }
+  window.addEventListener('scroll', updateScrollProgress, { passive: true });
+  updateScrollProgress();
+
+  let targetScale = 1;
+  let currentScale = 1;
+  wrap.addEventListener('click', () => {
+    targetScale = 1.15;
+    setTimeout(() => { targetScale = 1; }, 250);
+  });
+
+  let floatT = 0;
+  function animate() {
+    requestAnimationFrame(animate);
+    floatT += 0.015;
+
+    book.rotation.y = scrollProgress * Math.PI * 2;
+    book.rotation.x = Math.sin(scrollProgress * Math.PI) * 0.3;
+    book.position.y = Math.sin(floatT) * 0.08;
+
+    currentScale += (targetScale - currentScale) * 0.15;
+    book.scale.set(currentScale, currentScale, currentScale);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+</script>
+</body>
+</html>
