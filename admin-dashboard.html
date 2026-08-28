@@ -45,14 +45,14 @@
 </main>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.0/dist/umd/supabase.min.js"></script>
-<script src="config.js"></script>
+<script src="admin-config.js"></script>
 <script>
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   async function init() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session || session.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-      window.location.href = 'login.html';
+      window.location.href = 'admin-login.html';
       return;
     }
     document.getElementById('userEmail').textContent = session.user.email;
@@ -116,7 +116,7 @@
 
   document.getElementById('signOut').addEventListener('click', async () => {
     await sb.auth.signOut();
-    window.location.href = 'login.html';
+    window.location.href = 'admin-login.html';
   });
 
   init();
