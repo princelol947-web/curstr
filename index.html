@@ -200,6 +200,80 @@
     max-width: 220px;
     z-index: 15;
   }
+
+  /* Promo banner slider */
+  .slider {
+    position: relative;
+    overflow: hidden;
+    height: 220px;
+  }
+  @media (min-width: 860px) { .slider { height: 280px; } }
+  .slider-track {
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s ease;
+  }
+  .slide {
+    min-width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 24px;
+  }
+  @media (min-width: 860px) { .slide { padding: 0 64px; } }
+  .slide h3 { font-size: 1.4rem; margin: 0 0 8px; }
+  .slide p { margin: 0 0 16px; color: rgba(245,245,245,0.8); max-width: 420px; font-size: 14px; }
+  .slide-cta {
+    background: #0a0a0a;
+    color: #fff;
+    padding: 8px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    width: fit-content;
+  }
+  .slider-dots {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+  }
+  .slider-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .slider-dot.active { background: #fff; }
+  .slider-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.35);
+    border: none;
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+  }
+  .slider-arrow.prev { left: 12px; }
+  .slider-arrow.next { right: 12px; }
+  .slider-arrow:hover { background: rgba(0,0,0,0.55); }
 </style>
 </head>
 <body>
@@ -211,8 +285,31 @@
     <a href="terms.html">Terms</a>
     <a href="privacy.html">Privacy</a>
   </div>
-  <a href="admin/login.html" class="cta" style="text-decoration:none;">Sign in</a>
+  <a href="admin-login.html" class="cta" style="text-decoration:none;">Sign in</a>
 </nav>
+
+<section class="slider" id="slider">
+  <button class="slider-arrow prev" id="prevSlide" aria-label="Previous banner">‹</button>
+  <div class="slider-track" id="sliderTrack">
+    <div class="slide" style="background:linear-gradient(135deg,#78350f,#0a0a0a);">
+      <h3>New release: Quiet Hours</h3>
+      <p>Our most personal collection yet — out now.</p>
+      <a href="ebooks.html" class="slide-cta">Get it now</a>
+    </div>
+    <div class="slide" style="background:linear-gradient(135deg,#7c2d12,#0a0a0a);">
+      <h3>Buy 2, save 15%</h3>
+      <p>Mix and match any two titles at checkout.</p>
+      <a href="ebooks.html" class="slide-cta">See ebooks</a>
+    </div>
+    <div class="slide" style="background:linear-gradient(135deg,#92400e,#0a0a0a);">
+      <h3>Read the first chapter free</h3>
+      <p>No account needed, no strings attached.</p>
+      <a href="ebooks.html" class="slide-cta">Start reading</a>
+    </div>
+  </div>
+  <button class="slider-arrow next" id="nextSlide" aria-label="Next banner">›</button>
+  <div class="slider-dots" id="sliderDots"></div>
+</section>
 
 <div class="hero-spacer" id="heroSpacer">
   <div class="hero-sticky">
@@ -261,6 +358,7 @@
     `);
   });
 </script>
+<script>
   // Cookie banner (in-memory only, no localStorage per artifact rules)
   document.getElementById('acceptCookies').addEventListener('click', () => {
     document.getElementById('cookieBanner').style.display = 'none';
@@ -328,6 +426,55 @@
     renderer.render(scene, camera);
   }
   animate();
+</script>
+<script>
+  // --- Promo banner slider: auto-advance, dots, arrows, swipe ---
+  (function () {
+    const track = document.getElementById('sliderTrack');
+    const dotsWrap = document.getElementById('sliderDots');
+    const total = track.children.length;
+    let index = 0;
+    let autoTimer;
+
+    for (let i = 0; i < total; i++) {
+      const dot = document.createElement('button');
+      dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
+      dot.setAttribute('aria-label', 'Go to banner ' + (i + 1));
+      dot.addEventListener('click', () => goTo(i));
+      dotsWrap.appendChild(dot);
+    }
+
+    function goTo(i) {
+      index = (i + total) % total;
+      track.style.transform = `translateX(-${index * 100}%)`;
+      [...dotsWrap.children].forEach((d, di) => d.classList.toggle('active', di === index));
+      resetAuto();
+    }
+    function next() { goTo(index + 1); }
+    function prev() { goTo(index - 1); }
+
+    document.getElementById('nextSlide').addEventListener('click', next);
+    document.getElementById('prevSlide').addEventListener('click', prev);
+
+    function resetAuto() {
+      clearInterval(autoTimer);
+      autoTimer = setInterval(next, 4500);
+    }
+    resetAuto();
+
+    // Touch swipe support for mobile
+    let startX = 0;
+    track.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend', (e) => {
+      const diff = e.changedTouches[0].clientX - startX;
+      if (diff > 40) prev();
+      else if (diff < -40) next();
+    }, { passive: true });
+
+    const sliderSection = document.getElementById('slider');
+    sliderSection.addEventListener('mouseenter', () => clearInterval(autoTimer));
+    sliderSection.addEventListener('mouseleave', resetAuto);
+  })();
 </script>
 </body>
 </html>
