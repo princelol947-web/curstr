@@ -44,12 +44,16 @@
   <p class="note">Buyer emails older than 30 days are hidden from this view. Full order records stay in Supabase for accounting purposes.</p>
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="admin-config.js"></script>
 <script>
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  if (typeof supabase === 'undefined') {
+    document.querySelector('main').innerHTML =
+      '<p class="empty">Could not load the dashboard system (Supabase library failed to load). Check your internet connection and reload.</p>';
+  } else {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  async function init() {
+    async function init() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session || session.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
       window.location.href = 'admin-login.html';
@@ -120,5 +124,6 @@
   });
 
   init();
+  }
 </script>
 </body></html>

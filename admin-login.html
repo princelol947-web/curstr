@@ -25,31 +25,43 @@
   <button type="submit">Sign in</button>
 </form>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/supabase-js/2.45.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="admin-config.js"></script>
 <script>
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const errorEl = document.getElementById('error');
 
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const errorEl = document.getElementById('error');
-    errorEl.style.display = 'none';
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.style.display = 'block';
+  }
 
-    if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
-      errorEl.textContent = 'This account is not authorized as admin.';
-      errorEl.style.display = 'block';
-      return;
-    }
+  if (typeof supabase === 'undefined') {
+    showError('Could not load the login system (Supabase library failed to load). Check your internet connection and try again.');
+  } else {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const { error } = await sb.auth.signInWithPassword({ email, password });
-    if (error) {
-      errorEl.textContent = 'Invalid email or password.';
-      errorEl.style.display = 'block';
-      return;
-    }
-    window.location.href = 'admin-dashboard.html';
-  });
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      errorEl.style.display = 'none';
+
+      if (email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        showError('This account is not authorized as admin.');
+        return;
+      }
+
+      try {
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) {
+          showError('Sign-in failed: ' + error.message);
+          return;
+        }
+        window.location.href = 'admin-dashboard.html';
+      } catch (err) {
+        showError('Unexpected error: ' + err.message);
+      }
+    });
+  }
 </script>
 </body></html>
