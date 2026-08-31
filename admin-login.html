@@ -2,7 +2,7 @@
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Sign In</title>
 <style>
-  :root{--bg:#0a0a0a;--bg-elevated:#171717;--border:#262626;--text:#f5f5f5;--text-muted:#a3a3a3;--accent:#ef4444;}
+  :root{--bg:#0a0a0a;--bg-elevated:#171717;--border:#262626;--text:#f5f5f5;--text-muted:#a3a3a3;--accent:#ef4444;--accent-dark:#991b1b;}
   *{box-sizing:border-box;}
   body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;
        min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
@@ -11,8 +11,16 @@
   input{width:100%;padding:10px 12px;margin-bottom:14px;background:var(--bg-elevated);
         border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:15px;}
   input:focus-visible{outline:2px solid var(--accent);}
-  button{width:100%;padding:10px;background:var(--accent);color:#0a0a0a;font-weight:600;
-         border:none;border-radius:6px;font-size:15px;cursor:pointer;}
+  button{
+    width:100%;padding:10px;
+    background:linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color:#fff;font-weight:600;
+    border:none;border-radius:6px;font-size:15px;cursor:pointer;
+    box-shadow:0 4px 14px rgba(239,68,68,0.35);
+    transition:transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  }
+  button:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(239,68,68,0.5);filter:brightness(1.08);}
+  button:active{transform:translateY(0) scale(0.96);box-shadow:0 2px 8px rgba(239,68,68,0.4);filter:brightness(0.92);}
   .error{color:#f87171;font-size:13px;margin-bottom:12px;}
 </style>
 </head>

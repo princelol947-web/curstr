@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Ebooks — Inkwell</title>
+<title>Ebooks — Curse Trading</title>
 <style>
   :root {
     --bg:#0a0a0a; --bg-elevated:#171717; --border:#262626;
     --text:#f5f5f5; --text-muted:#a3a3a3; --text-dim:#737373;
-    --accent:#f59e0b; --accent-hover:#fbbf24;
+    --accent:#ef4444; --accent-hover:#f87171; --accent-dark:#991b1b;
   }
   * { box-sizing: border-box; }
   body { margin:0; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; }
@@ -26,13 +26,21 @@
 
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:24px; }
   .card { background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px;
-          padding:18px; display:flex; flex-direction:column; }
+          padding:18px; display:flex; flex-direction:column; transition: transform 0.15s ease; }
+  .card:hover { transform: translateY(-3px); }
   .cover { aspect-ratio:3/4; border-radius:6px; margin-bottom:14px; }
   .card h3 { margin:0 0 4px; font-size:16px; }
   .card p.price { margin:0 0 16px; color:var(--text-dim); font-size:14px; }
-  .buy-btn { margin-top:auto; background:var(--accent); color:#0a0a0a; font-weight:600;
-             text-align:center; padding:10px; border-radius:6px; text-decoration:none; font-size:14px; }
-  .buy-btn:hover { background:var(--accent-hover); }
+  .buy-btn {
+    margin-top:auto;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color:#fff; font-weight:600;
+    text-align:center; padding:10px; border-radius:6px; text-decoration:none; font-size:14px;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  }
+  .buy-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5); filter: brightness(1.08); }
+  .buy-btn:active { transform: translateY(0) scale(0.95); box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); filter: brightness(0.92); }
 
   footer { border-top:1px solid var(--border); padding:40px 24px; display:flex; flex-wrap:wrap;
            gap:24px; font-size:13px; color:var(--text-dim); }
@@ -43,7 +51,7 @@
 <body>
 
 <nav>
-  <div class="logo">Inkwell<span>.</span></div>
+  <div class="logo">Curse Trading<span>.</span></div>
   <a href="index.html" class="back">← Home</a>
 </nav>
 

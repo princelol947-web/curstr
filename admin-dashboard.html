@@ -7,7 +7,13 @@
   body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;}
   header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);}
   header span.email{color:var(--text-dim);font-size:13px;}
-  button.signout{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer;}
+  button.signout{
+    background:none;border:1px solid var(--border);color:var(--text-muted);
+    padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer;
+    transition:transform 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  }
+  button.signout:hover{border-color:var(--accent);color:var(--accent);}
+  button.signout:active{transform:scale(0.94);}
   main{max-width:960px;margin:0 auto;padding:32px 24px 80px;}
   .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-bottom:36px;}
   .stat{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:16px;}
