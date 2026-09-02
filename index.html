@@ -12,8 +12,9 @@
     --text: #f5f5f5;
     --text-muted: #a3a3a3;
     --text-dim: #737373;
-    --accent: #f59e0b;
-    --accent-hover: #fbbf24;
+    --accent: #ef4444;
+    --accent-hover: #f87171;
+    --accent-dark: #991b1b;
   }
   * { box-sizing: border-box; }
   body {
@@ -23,6 +24,16 @@
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   }
   :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  #bg-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    display: block;
+  }
 
   nav {
     position: sticky;
@@ -36,42 +47,61 @@
     backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--border);
   }
-  nav .logo { font-weight: 600; letter-spacing: -0.02em; }
+  nav .logo { font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; }
   nav .logo span { color: var(--accent); }
   nav .links { display: flex; gap: 24px; font-size: 14px; color: var(--text-muted); }
-  nav .links a { color: inherit; text-decoration: none; }
+  nav .links a { color: inherit; text-decoration: none; white-space: nowrap; }
   nav .links a:hover { color: var(--text); }
   nav .cta {
-    background: var(--accent);
-    color: #0a0a0a;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
     border: none;
     padding: 8px 16px;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.3);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  }
+  nav .cta:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45); filter: brightness(1.08); }
+  nav .cta:active { transform: translateY(0) scale(0.95); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35); filter: brightness(0.92); }
+  @media (max-width: 480px) {
+    nav { padding: 14px 16px; gap: 8px; }
+    nav .logo { font-size: 15px; }
+    nav .links { gap: 10px; font-size: 12.5px; }
+    nav .cta { padding: 7px 12px; font-size: 13px; }
   }
 
-  .hero-spacer { height: 130vh; position: relative; }
-  .hero-sticky {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    display: grid;
-    grid-template-columns: 1fr;
+  .hero {
+    position: relative;
+    min-height: 90vh;
+    display: flex;
     align-items: center;
-    padding: 0 24px;
-    gap: 32px;
+    padding: 60px 24px;
   }
   @media (min-width: 860px) {
-    .hero-sticky { grid-template-columns: 1fr 1fr; padding: 0 64px; }
+    .hero { padding: 60px 64px; }
+  }
+  .hero-content {
+    max-width: 600px;
+    background: rgba(0,0,0,0.72);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px 28px;
   }
 
   .eyebrow {
-    color: var(--accent);
-    font-size: 13px;
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
+    font-size: 12px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 6px;
     margin-bottom: 16px;
   }
   h1 {
@@ -91,8 +121,8 @@
   .browse-btn {
     display: inline-block;
     margin-top: 32px;
-    background: var(--accent);
-    color: #0a0a0a;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff;
     font-weight: 600;
     padding: 12px 24px;
     border-radius: 6px;
@@ -100,32 +130,29 @@
     border: none;
     cursor: pointer;
     font-size: 15px;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
   }
-  .browse-btn:hover { background: var(--accent-hover); }
-  .hint {
-    margin-top: 14px;
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-
-  .canvas-wrap {
-    height: 55vh;
-    min-height: 320px;
-    cursor: pointer;
-    position: relative;
-  }
-  @media (min-width: 860px) { .canvas-wrap { height: 70vh; } }
-  canvas { display: block; width: 100%; height: 100%; }
+  .browse-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5); filter: brightness(1.08); }
+  .browse-btn:active { transform: translateY(0) scale(0.95); box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); filter: brightness(0.92); }
 
   section.catalog {
+    position: relative;
     max-width: 1100px;
     margin: 0 auto;
     padding: 80px 24px 40px;
   }
   section.catalog h2 {
+    display: inline-block;
     font-size: 1.5rem;
-    margin-bottom: 24px;
+    margin: 0;
+    background: rgba(0,0,0,0.72);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
   }
+  .catalog-header { margin-bottom: 20px; }
+  .catalog-header p { margin: 12px 0 0; }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -143,22 +170,34 @@
     aspect-ratio: 3/4;
     border-radius: 6px;
     margin-bottom: 12px;
-    background: linear-gradient(135deg, var(--accent), #b45309);
+    background: linear-gradient(135deg, var(--accent), #991b1b);
   }
   .card h3 { font-size: 14px; margin: 0 0 4px; }
   .card p { font-size: 13px; color: var(--text-dim); margin: 0; }
 
   footer {
-    border-top: 1px solid var(--border);
-    padding: 40px 24px;
+    position: relative;
+    margin: 0 24px 24px;
     display: flex;
     flex-wrap: wrap;
-    gap: 24px;
+    gap: 12px;
     font-size: 13px;
     color: var(--text-dim);
   }
   footer a { color: inherit; text-decoration: none; }
   footer a:hover { color: var(--text-muted); }
+  .link-chip {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color: #fff !important;
+    border-radius: 8px;
+    padding: 7px 16px;
+    text-decoration: none !important;
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  }
+  .link-chip:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5); }
+  .link-chip:active { transform: translateY(0) scale(0.95); filter: brightness(0.92); }
 
   .banner {
     position: fixed;
@@ -226,7 +265,7 @@
   .slide h3 { font-size: 1.4rem; margin: 0 0 8px; }
   .slide p { margin: 0 0 16px; color: rgba(245,245,245,0.8); max-width: 420px; font-size: 14px; }
   .slide-cta {
-    background: #0a0a0a;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
     color: #fff;
     padding: 8px 18px;
     border-radius: 6px;
@@ -234,7 +273,11 @@
     font-size: 13px;
     font-weight: 600;
     width: fit-content;
+    box-shadow: 0 3px 10px rgba(239, 68, 68, 0.35);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
   }
+  .slide-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.5); filter: brightness(1.08); }
+  .slide-cta:active { transform: translateY(0) scale(0.94); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4); filter: brightness(0.92); }
   .slider-dots {
     position: absolute;
     bottom: 14px;
@@ -251,8 +294,10 @@
     border: none;
     cursor: pointer;
     padding: 0;
+    transition: transform 0.15s ease, background 0.15s ease;
   }
-  .slider-dot.active { background: #fff; }
+  .slider-dot.active { background: var(--accent); }
+  .slider-dot:active { transform: scale(0.7); }
   .slider-arrow {
     position: absolute;
     top: 50%;
@@ -270,16 +315,20 @@
     align-items: center;
     justify-content: center;
     z-index: 5;
+    transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
   }
   .slider-arrow.prev { left: 12px; }
   .slider-arrow.next { right: 12px; }
-  .slider-arrow:hover { background: rgba(0,0,0,0.55); }
+  .slider-arrow:hover { background: var(--accent); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5); }
+  .slider-arrow:active { transform: translateY(-50%) scale(0.85); }
 </style>
 </head>
 <body>
 
+<canvas id="bg-canvas"></canvas>
+
 <nav>
-  <div class="logo">Inkwell<span>.</span></div>
+  <div class="logo">Curse Trading<span>.</span></div>
   <div class="links">
     <a href="ebooks.html">Browse</a>
     <a href="terms.html">Terms</a>
@@ -290,52 +339,32 @@
 
 <section class="slider" id="slider">
   <button class="slider-arrow prev" id="prevSlide" aria-label="Previous banner">‹</button>
-  <div class="slider-track" id="sliderTrack">
-    <div class="slide" style="background:linear-gradient(135deg,#78350f,#0a0a0a);">
-      <h3>New release: Quiet Hours</h3>
-      <p>Our most personal collection yet — out now.</p>
-      <a href="ebooks.html" class="slide-cta">Get it now</a>
-    </div>
-    <div class="slide" style="background:linear-gradient(135deg,#7c2d12,#0a0a0a);">
-      <h3>Buy 2, save 15%</h3>
-      <p>Mix and match any two titles at checkout.</p>
-      <a href="ebooks.html" class="slide-cta">See ebooks</a>
-    </div>
-    <div class="slide" style="background:linear-gradient(135deg,#92400e,#0a0a0a);">
-      <h3>Read the first chapter free</h3>
-      <p>No account needed, no strings attached.</p>
-      <a href="ebooks.html" class="slide-cta">Start reading</a>
-    </div>
-  </div>
+  <div class="slider-track" id="sliderTrack"></div>
   <button class="slider-arrow next" id="nextSlide" aria-label="Next banner">›</button>
   <div class="slider-dots" id="sliderDots"></div>
 </section>
 
-<div class="hero-spacer" id="heroSpacer">
-  <div class="hero-sticky">
-    <div>
-      <p class="eyebrow">Ebooks</p>
-      <h1>Read something worth<br/>finishing.</h1>
-      <p class="lede">Independently written, sold directly by the author. No middleman, no distributor markup — every copy comes straight from here.</p>
-      <a href="ebooks.html" class="browse-btn">Browse ebooks</a>
-      <p class="hint">↓ scroll to rotate · click the book to pulse</p>
-    </div>
-    <div class="canvas-wrap" id="canvasWrap">
-      <canvas id="three-canvas"></canvas>
-    </div>
+<section class="hero">
+  <div class="hero-content">
+    <p class="eyebrow">Ebooks</p>
+    <h1>Read something worth<br/>finishing.</h1>
+    <p class="lede">Independently written, sold directly by the author. No middleman, no distributor markup — every copy comes straight from here.</p>
+    <a href="ebooks.html" class="browse-btn">Browse ebooks</a>
   </div>
-</div>
+</section>
 
 <section class="catalog" id="catalog">
-  <h2>Latest releases</h2>
+  <div class="catalog-header">
+    <h2>Latest releases</h2>
+  </div>
   <div class="grid" id="catalogGrid"></div>
-  <p style="margin-top:20px;"><a href="ebooks.html" style="color:var(--accent);">See all ebooks →</a></p>
+  <p style="margin-top:20px;"><a href="ebooks.html" class="link-chip">See all ebooks →</a></p>
 </section>
 
 <footer>
-  <a href="terms.html">Terms &amp; Conditions</a>
-  <a href="privacy.html">Privacy Policy</a>
-  <a href="refund-policy.html">Refund Policy</a>
+  <a href="terms.html" class="link-chip">Terms &amp; Conditions</a>
+  <a href="privacy.html" class="link-chip">Privacy Policy</a>
+  <a href="refund-policy.html" class="link-chip">Refund Policy</a>
 </footer>
 
 <div class="banner" id="cookieBanner">
@@ -343,99 +372,83 @@
   <button id="acceptCookies">Got it</button>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="ebooks-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin-config.js"></script>
 <script>
-  // Render first 4 ebooks as the homepage preview grid
-  const grid = document.getElementById('catalogGrid');
-  EBOOKS.slice(0, 4).forEach(b => {
-    grid.insertAdjacentHTML('beforeend', `
+  // --- Load banners + ebooks from Supabase (admin-editable via Manage Content) ---
+  const FALLBACK_BANNERS = [
+    { title: 'New release: Quiet Hours', subtitle: 'Our most personal collection yet — out now.', cta_text: 'Get it now', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#7f1d1d,#0a0a0a)' },
+    { title: 'Buy 2, save 15%', subtitle: 'Mix and match any two titles at checkout.', cta_text: 'See ebooks', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#991b1b,#0a0a0a)' },
+    { title: 'Read the first chapter free', subtitle: 'No account needed, no strings attached.', cta_text: 'Start reading', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#b91c1c,#0a0a0a)' },
+  ];
+  const FALLBACK_EBOOKS = [
+    { title: 'The Long Way Home', price: '$9.00', color: 'linear-gradient(135deg,#ef4444,#991b1b)' },
+    { title: 'Field Notes', price: '$6.50', color: 'linear-gradient(135deg,#78716c,#292524)' },
+    { title: 'Quiet Hours', price: '$8.00', color: 'linear-gradient(135deg,#57534e,#1c1917)' },
+    { title: 'After the Rain', price: '$7.25', color: 'linear-gradient(135deg,#dc2626,#7f1d1d)' },
+  ];
+
+  function renderBannerSlides(banners) {
+    const track = document.getElementById('sliderTrack');
+    track.innerHTML = banners.map(b => `
+      <div class="slide" style="background:${b.color}">
+        <h3>${b.title}</h3>
+        <p>${b.subtitle || ''}</p>
+        <a href="${b.cta_link || 'ebooks.html'}" class="slide-cta">${b.cta_text || 'See more'}</a>
+      </div>
+    `).join('');
+  }
+
+  function renderCatalogGrid(ebooks) {
+    const grid = document.getElementById('catalogGrid');
+    grid.innerHTML = ebooks.slice(0, 4).map(b => `
       <a href="ebooks.html" class="card" style="text-decoration:none;color:inherit;display:block;">
         <div class="cover" style="background:${b.color}"></div>
         <h3>${b.title}</h3>
         <p>${b.price}</p>
       </a>
-    `);
-  });
+    `).join('');
+  }
+
+  async function loadSiteContent() {
+    let banners = FALLBACK_BANNERS;
+    let ebooks = FALLBACK_EBOOKS;
+
+    if (typeof supabase !== 'undefined') {
+      try {
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data, error } = await sb.from('site_content').select('key, value');
+        if (!error && data) {
+          const bannerRow = data.find(r => r.key === 'banners');
+          const ebookRow = data.find(r => r.key === 'ebooks');
+          if (bannerRow && bannerRow.value && bannerRow.value.length) banners = bannerRow.value;
+          if (ebookRow && ebookRow.value && ebookRow.value.length) ebooks = ebookRow.value;
+        }
+      } catch (e) { /* fall back to defaults below */ }
+    }
+
+    renderBannerSlides(banners);
+    renderCatalogGrid(ebooks);
+    initSlider();
+  }
 </script>
 <script>
   // Cookie banner (in-memory only, no localStorage per artifact rules)
   document.getElementById('acceptCookies').addEventListener('click', () => {
     document.getElementById('cookieBanner').style.display = 'none';
   });
-
-  // --- Three.js scene: floating "book" that rotates on scroll, pulses on click ---
-  const canvas = document.getElementById('three-canvas');
-  const wrap = document.getElementById('canvasWrap');
-
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  camera.position.set(0, 0, 4.5);
-
-  const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-  const dir = new THREE.DirectionalLight(0xffffff, 1.2);
-  dir.position.set(3, 3, 3);
-  scene.add(ambient, dir);
-
-  const geometry = new THREE.BoxGeometry(1.4, 2, 0.15);
-  const material = new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.3, roughness: 0.4 });
-  const book = new THREE.Mesh(geometry, material);
-  scene.add(book);
-
-  function resize() {
-    const w = wrap.clientWidth, h = wrap.clientHeight;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  let scrollProgress = 0;
-  function updateScrollProgress() {
-    const spacer = document.getElementById('heroSpacer');
-    const rect = spacer.getBoundingClientRect();
-    const total = rect.height + window.innerHeight;
-    let p = (window.innerHeight - rect.top) / total;
-    p = Math.min(Math.max(p, 0), 1);
-    scrollProgress = p;
-  }
-  window.addEventListener('scroll', updateScrollProgress, { passive: true });
-  updateScrollProgress();
-
-  let targetScale = 1;
-  let currentScale = 1;
-  wrap.addEventListener('click', () => {
-    targetScale = 1.15;
-    setTimeout(() => { targetScale = 1; }, 250);
-  });
-
-  let floatT = 0;
-  function animate() {
-    requestAnimationFrame(animate);
-    floatT += 0.015;
-
-    book.rotation.y = scrollProgress * Math.PI * 2;
-    book.rotation.x = Math.sin(scrollProgress * Math.PI) * 0.3;
-    book.position.y = Math.sin(floatT) * 0.08;
-
-    currentScale += (targetScale - currentScale) * 0.15;
-    book.scale.set(currentScale, currentScale, currentScale);
-
-    renderer.render(scene, camera);
-  }
-  animate();
 </script>
 <script>
   // --- Promo banner slider: auto-advance, dots, arrows, swipe ---
-  (function () {
+  function initSlider() {
     const track = document.getElementById('sliderTrack');
     const dotsWrap = document.getElementById('sliderDots');
     const total = track.children.length;
+    if (total === 0) return;
     let index = 0;
     let autoTimer;
 
+    dotsWrap.innerHTML = '';
     for (let i = 0; i < total; i++) {
       const dot = document.createElement('button');
       dot.className = 'slider-dot' + (i === 0 ? ' active' : '');
@@ -462,7 +475,6 @@
     }
     resetAuto();
 
-    // Touch swipe support for mobile
     let startX = 0;
     track.addEventListener('touchstart', (e) => { startX = e.touches[0].clientX; }, { passive: true });
     track.addEventListener('touchend', (e) => {
@@ -474,6 +486,124 @@
     const sliderSection = document.getElementById('slider');
     sliderSection.addEventListener('mouseenter', () => clearInterval(autoTimer));
     sliderSection.addEventListener('mouseleave', resetAuto);
+  }
+
+  loadSiteContent();
+</script>
+<script>
+  // --- Interactive 2D background: a simple ambient field of drifting, glowing
+  // dots that scatter near touch/cursor. ---
+  (function () {
+    const canvas = document.getElementById('bg-canvas');
+    const ctx = canvas.getContext('2d');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let w, h;
+    function resize() {
+      w = canvas.width = window.innerWidth;
+      h = canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const COUNT = window.innerWidth < 700 ? 90 : 150;
+    const POINTER_RADIUS = 110;
+
+    const particles = Array.from({ length: COUNT }, () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      r: 1.5 + Math.random() * 2,
+    }));
+
+    function drawGlowingDot(p) {
+      ctx.save();
+      ctx.shadowBlur = 24;
+      ctx.shadowColor = 'rgba(239,68,68,1)';
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(252,180,180,0.95)';
+      ctx.fill();
+      // extra bright core for more punch
+      ctx.shadowBlur = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx.fill();
+      ctx.restore();
+    }
+
+    if (reduceMotion) {
+      for (const p of particles) drawGlowingDot(p);
+      return;
+    }
+
+    const pointer = { x: -9999, y: -9999, active: false };
+    window.addEventListener('mousemove', (e) => {
+      pointer.x = e.clientX; pointer.y = e.clientY; pointer.active = true;
+    });
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches[0]) {
+        pointer.x = e.touches[0].clientX; pointer.y = e.touches[0].clientY; pointer.active = true;
+      }
+    }, { passive: true });
+    window.addEventListener('touchend', () => { pointer.active = false; });
+    window.addEventListener('mouseleave', () => { pointer.active = false; });
+
+    function step() {
+      ctx.clearRect(0, 0, w, h);
+
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (pointer.active) {
+          const dx = p.x - pointer.x, dy = p.y - pointer.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < POINTER_RADIUS && dist > 0.01) {
+            const force = (POINTER_RADIUS - dist) / POINTER_RADIUS;
+            p.x += (dx / dist) * force * 3;
+            p.y += (dy / dist) * force * 3;
+          }
+        }
+
+        if (p.x < -10) p.x = w + 10;
+        if (p.x > w + 10) p.x = -10;
+        if (p.y < -10) p.y = h + 10;
+        if (p.y > h + 10) p.y = -10;
+
+        drawGlowingDot(p);
+      }
+
+      requestAnimationFrame(step);
+    }
+    step();
+  })();
+</script>
+<script>
+  // --- Randomly flickering glow along each box's outline ---
+  (function () {
+    const boxes = document.querySelectorAll('.hero-content, section.catalog h2, .link-chip');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    boxes.forEach((el) => {
+      el.style.transition = 'box-shadow 1.1s ease';
+
+      if (reduceMotion) {
+        el.style.boxShadow = '0 0 18px 2px rgba(255,255,255,0.35)';
+        return;
+      }
+
+      function glow() {
+        const blur = 14 + Math.random() * 26;
+        const spread = Math.random() * 5;
+        const alpha = 0.25 + Math.random() * 0.45;
+        el.style.boxShadow = `0 0 ${blur}px ${spread}px rgba(255,255,255,${alpha})`;
+        setTimeout(glow, 1000 + Math.random() * 1500);
+      }
+      glow();
+    });
   })();
 </script>
 </body>

@@ -67,19 +67,40 @@
   <a href="refund-policy.html">Refund Policy</a>
 </footer>
 
-<script src="ebooks-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin-config.js"></script>
 <script>
-  const grid = document.getElementById('grid');
-  EBOOKS.forEach(b => {
-    grid.insertAdjacentHTML('beforeend', `
+  const FALLBACK_EBOOKS = [
+    { title: 'The Long Way Home', price: '$9.00', color: 'linear-gradient(135deg,#ef4444,#991b1b)', payment_link: 'https://buy.stripe.com/REPLACE_ME_1' },
+    { title: 'Field Notes', price: '$6.50', color: 'linear-gradient(135deg,#78716c,#292524)', payment_link: 'https://buy.stripe.com/REPLACE_ME_2' },
+    { title: 'Quiet Hours', price: '$8.00', color: 'linear-gradient(135deg,#57534e,#1c1917)', payment_link: 'https://buy.stripe.com/REPLACE_ME_3' },
+    { title: 'After the Rain', price: '$7.25', color: 'linear-gradient(135deg,#dc2626,#7f1d1d)', payment_link: 'https://buy.stripe.com/REPLACE_ME_4' },
+  ];
+
+  function renderGrid(ebooks) {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = ebooks.map(b => `
       <div class="card">
         <div class="cover" style="background:${b.color}"></div>
         <h3>${b.title}</h3>
         <p class="price">${b.price}</p>
-        <a class="buy-btn" href="${b.paymentLink}">Buy now</a>
+        <a class="buy-btn" href="${b.payment_link}">Buy now</a>
       </div>
-    `);
-  });
+    `).join('');
+  }
+
+  async function loadEbooks() {
+    let ebooks = FALLBACK_EBOOKS;
+    if (typeof supabase !== 'undefined') {
+      try {
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data, error } = await sb.from('site_content').select('value').eq('key', 'ebooks').single();
+        if (!error && data && data.value && data.value.length) ebooks = data.value;
+      } catch (e) { /* fall back to defaults below */ }
+    }
+    renderGrid(ebooks);
+  }
+  loadEbooks();
 </script>
 </body>
 </html>

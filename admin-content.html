@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manage Content</title>
+<style>
+  :root{--bg:#0a0a0a;--bg-elevated:#171717;--border:#262626;--text:#f5f5f5;--text-muted:#a3a3a3;--accent:#ef4444;--accent-dark:#991b1b;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);}
+  header a{color:var(--text-muted);text-decoration:none;font-size:14px;}
+  main{max-width:640px;margin:0 auto;padding:24px 20px 80px;}
+  h1{font-size:1.3rem;margin:0 0 4px;}
+  h2{font-size:1rem;color:var(--accent);margin:32px 0 12px;}
+  .card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;position:relative;}
+  .card label{display:block;font-size:12px;color:var(--text-muted);margin:10px 0 4px;}
+  .card label:first-child{margin-top:0;}
+  .card input{width:100%;padding:8px 10px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;}
+  .remove-btn{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;padding:4px;}
+  .remove-btn:hover{color:var(--accent);}
+  .add-btn{width:100%;padding:10px;background:none;border:1.5px dashed var(--border);border-radius:8px;color:var(--text-muted);font-size:14px;cursor:pointer;}
+  .add-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .save-btn{width:100%;margin-top:14px;padding:12px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;font-weight:600;border:none;border-radius:8px;font-size:15px;cursor:pointer;}
+  .status{font-size:13px;margin-top:10px;min-height:18px;}
+  .status.ok{color:#4ade80;}
+  .status.err{color:#f87171;}
+  .hint{font-size:12px;color:var(--text-dim);margin-top:-4px;margin-bottom:16px;}
+</style>
+</head>
+<body>
+<header>
+  <div><strong>Manage Content</strong></div>
+  <a href="admin-dashboard.html">← Dashboard</a>
+</header>
+
+<main>
+  <h1>Homepage banners</h1>
+  <p class="hint">These are the 3 (or however many) sliding banners at the top of your homepage.</p>
+  <div id="bannerList"></div>
+  <button class="add-btn" id="addBanner">+ Add banner</button>
+  <button class="save-btn" id="saveBanners">Save banners</button>
+  <p class="status" id="bannerStatus"></p>
+
+  <h2 style="margin-top:48px;">Ebooks</h2>
+  <p class="hint">The full list of ebooks — the first 4 show as "Latest releases" on your homepage, all of them show on the Ebooks page.</p>
+  <div id="ebookList"></div>
+  <button class="add-btn" id="addEbook">+ Add ebook</button>
+  <button class="save-btn" id="saveEbooks">Save ebooks</button>
+  <p class="status" id="ebookStatus"></p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin-config.js"></script>
+<script>
+  if (typeof supabase === 'undefined') {
+    document.querySelector('main').innerHTML = '<p class="status err">Could not load — check your internet connection and reload.</p>';
+  } else {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let banners = [];
+    let ebooks = [];
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session || session.user.email.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+        window.location.href = 'admin-login.html';
+        return;
+      }
+
+      const { data: rows, error } = await sb.from('site_content').select('key, value');
+      if (error) {
+        document.querySelector('main').innerHTML = `<p class="status err">Couldn't load content: ${error.message}</p>`;
+        return;
+      }
+      const bannerRow = rows.find(r => r.key === 'banners');
+      const ebookRow = rows.find(r => r.key === 'ebooks');
+      banners = (bannerRow && bannerRow.value) || [];
+      ebooks = (ebookRow && ebookRow.value) || [];
+      renderBanners();
+      renderEbooks();
+    }
+
+    function bannerCardHTML(b, i) {
+      return `
+        <div class="card" data-index="${i}">
+          <button class="remove-btn" data-remove-banner="${i}">✕</button>
+          <label>Title</label><input data-field="title" value="${esc(b.title)}">
+          <label>Subtitle</label><input data-field="subtitle" value="${esc(b.subtitle)}">
+          <label>Button text</label><input data-field="cta_text" value="${esc(b.cta_text)}">
+          <label>Button link</label><input data-field="cta_link" value="${esc(b.cta_link)}">
+          <label>Background (CSS gradient or color)</label><input data-field="color" value="${esc(b.color)}">
+        </div>`;
+    }
+    function ebookCardHTML(e, i) {
+      return `
+        <div class="card" data-index="${i}">
+          <button class="remove-btn" data-remove-ebook="${i}">✕</button>
+          <label>Title</label><input data-field="title" value="${esc(e.title)}">
+          <label>Price (shown to buyers)</label><input data-field="price" value="${esc(e.price)}">
+          <label>Cover (CSS gradient or color)</label><input data-field="color" value="${esc(e.color)}">
+          <label>Payment link</label><input data-field="payment_link" value="${esc(e.payment_link)}">
+        </div>`;
+    }
+    function esc(v) { return (v || '').toString().replace(/"/g, '&quot;'); }
+
+    function renderBanners() {
+      document.getElementById('bannerList').innerHTML = banners.map(bannerCardHTML).join('');
+      document.querySelectorAll('[data-remove-banner]').forEach(btn => {
+        btn.addEventListener('click', () => { banners.splice(+btn.dataset.removeBanner, 1); renderBanners(); });
+      });
+    }
+    function renderEbooks() {
+      document.getElementById('ebookList').innerHTML = ebooks.map(ebookCardHTML).join('');
+      document.querySelectorAll('[data-remove-ebook]').forEach(btn => {
+        btn.addEventListener('click', () => { ebooks.splice(+btn.dataset.removeEbook, 1); renderEbooks(); });
+      });
+    }
+
+    function readBannersFromDOM() {
+      return [...document.querySelectorAll('#bannerList .card')].map(card => {
+        const obj = {};
+        card.querySelectorAll('input[data-field]').forEach(inp => obj[inp.dataset.field] = inp.value);
+        return obj;
+      });
+    }
+    function readEbooksFromDOM() {
+      return [...document.querySelectorAll('#ebookList .card')].map(card => {
+        const obj = {};
+        card.querySelectorAll('input[data-field]').forEach(inp => obj[inp.dataset.field] = inp.value);
+        return obj;
+      });
+    }
+
+    document.getElementById('addBanner').addEventListener('click', () => {
+      banners = readBannersFromDOM();
+      banners.push({ title: '', subtitle: '', cta_text: 'Learn more', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#78350f,#0a0a0a)' });
+      renderBanners();
+    });
+    document.getElementById('addEbook').addEventListener('click', () => {
+      ebooks = readEbooksFromDOM();
+      ebooks.push({ title: '', price: '', color: 'linear-gradient(135deg,#ef4444,#991b1b)', payment_link: '' });
+      renderEbooks();
+    });
+
+    document.getElementById('saveBanners').addEventListener('click', async () => {
+      const statusEl = document.getElementById('bannerStatus');
+      statusEl.textContent = 'Saving…'; statusEl.className = 'status';
+      const updated = readBannersFromDOM();
+      const { error } = await sb.from('site_content').update({ value: updated, updated_at: new Date().toISOString() }).eq('key', 'banners');
+      statusEl.textContent = error ? `Failed: ${error.message}` : 'Saved ✓';
+      statusEl.className = 'status ' + (error ? 'err' : 'ok');
+    });
+    document.getElementById('saveEbooks').addEventListener('click', async () => {
+      const statusEl = document.getElementById('ebookStatus');
+      statusEl.textContent = 'Saving…'; statusEl.className = 'status';
+      const updated = readEbooksFromDOM();
+      const { error } = await sb.from('site_content').update({ value: updated, updated_at: new Date().toISOString() }).eq('key', 'ebooks');
+      statusEl.textContent = error ? `Failed: ${error.message}` : 'Saved ✓';
+      statusEl.className = 'status ' + (error ? 'err' : 'ok');
+    });
+
+    init();
+  }
+</script>
+</body></html>
