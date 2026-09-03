@@ -34,7 +34,7 @@
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="admin-config.js"></script>
+<script src="admin-config.js?v=2"></script>
 <script>
   const errorEl = document.getElementById('error');
 
@@ -45,10 +45,17 @@
 
   if (typeof supabase === 'undefined') {
     showError('Could not load the login system (Supabase library failed to load). Check your internet connection and try again.');
+  } else if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON_KEY === 'undefined' || typeof ADMIN_EMAIL === 'undefined') {
+    showError('Site configuration failed to load (admin-config.js missing or broken). Check that admin-config.js is uploaded correctly.');
   } else {
-    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let sb;
+    try {
+      sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (err) {
+      showError('Could not connect to the login system: ' + err.message);
+    }
 
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    if (sb) document.getElementById('loginForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
