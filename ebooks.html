@@ -59,6 +59,7 @@
   <h1>All ebooks</h1>
   <p class="sub">Every purchase goes straight to me — no distributor, no reseller.</p>
   <div class="grid" id="grid"></div>
+  <p style="margin-top:28px;font-size:13px;color:var(--text-dim);">By completing a purchase, you agree to our <a href="terms.html" style="color:var(--accent);">Terms</a> and consent to our <a href="privacy.html" style="color:var(--accent);">Privacy Policy</a>, including use of your email to deliver your ebook.</p>
 </main>
 
 <footer>
@@ -77,14 +78,28 @@
     { title: 'After the Rain', price: '$7.25', color: 'linear-gradient(135deg,#dc2626,#7f1d1d)', payment_link: 'https://buy.stripe.com/REPLACE_ME_4' },
   ];
 
+  function escHtml(s) {
+    return (s == null ? '' : String(s))
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function safeUrl(u) {
+    if (!u) return '#';
+    const s = String(u).trim();
+    return /^(https?:\/\/|\/|\.\/|#)/i.test(s) ? s : '#';
+  }
+  function safeColor(c) {
+    return /^[a-zA-Z0-9#(),.\-\s%]+$/.test(c || '') ? c : '#0a0a0a';
+  }
+
   function renderGrid(ebooks) {
     const grid = document.getElementById('grid');
     grid.innerHTML = ebooks.map(b => `
       <div class="card">
-        <div class="cover" style="background:${b.color}"></div>
-        <h3>${b.title}</h3>
-        <p class="price">${b.price}</p>
-        <a class="buy-btn" href="${b.payment_link}">Buy now</a>
+        <div class="cover" style="background:${safeColor(b.color)}"></div>
+        <h3>${escHtml(b.title)}</h3>
+        <p class="price">${escHtml(b.price)}</p>
+        <a class="buy-btn" href="${safeUrl(b.payment_link)}">Buy now</a>
       </div>
     `).join('');
   }
@@ -102,5 +117,6 @@
   }
   loadEbooks();
 </script>
+<script src="chatbot.js"></script>
 </body>
 </html>

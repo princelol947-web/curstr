@@ -388,13 +388,28 @@
     { title: 'After the Rain', price: '$7.25', color: 'linear-gradient(135deg,#dc2626,#7f1d1d)' },
   ];
 
+  function escHtml(s) {
+    return (s == null ? '' : String(s))
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function safeUrl(u) {
+    if (!u) return '#';
+    const s = String(u).trim();
+    return /^(https?:\/\/|\/|\.\/|#)/i.test(s) ? s : '#';
+  }
+  function safeColor(c) {
+    // Only allow simple CSS color/gradient syntax — blocks any attempt to break out via url()/expression/etc.
+    return /^[a-zA-Z0-9#(),.\-\s%]+$/.test(c || '') ? c : '#0a0a0a';
+  }
+
   function renderBannerSlides(banners) {
     const track = document.getElementById('sliderTrack');
     track.innerHTML = banners.map(b => `
-      <div class="slide" style="background:${b.color}">
-        <h3>${b.title}</h3>
-        <p>${b.subtitle || ''}</p>
-        <a href="${b.cta_link || 'ebooks.html'}" class="slide-cta">${b.cta_text || 'See more'}</a>
+      <div class="slide" style="background:${safeColor(b.color)}">
+        <h3>${escHtml(b.title)}</h3>
+        <p>${escHtml(b.subtitle || '')}</p>
+        <a href="${safeUrl(b.cta_link || 'ebooks.html')}" class="slide-cta">${escHtml(b.cta_text || 'See more')}</a>
       </div>
     `).join('');
   }
@@ -403,9 +418,9 @@
     const grid = document.getElementById('catalogGrid');
     grid.innerHTML = ebooks.slice(0, 4).map(b => `
       <a href="ebooks.html" class="card" style="text-decoration:none;color:inherit;display:block;">
-        <div class="cover" style="background:${b.color}"></div>
-        <h3>${b.title}</h3>
-        <p>${b.price}</p>
+        <div class="cover" style="background:${safeColor(b.color)}"></div>
+        <h3>${escHtml(b.title)}</h3>
+        <p>${escHtml(b.price)}</p>
       </a>
     `).join('');
   }
@@ -606,5 +621,6 @@
     });
   })();
 </script>
+<script src="chatbot.js"></script>
 </body>
 </html>
