@@ -28,9 +28,20 @@
   .card { background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px;
           padding:18px; display:flex; flex-direction:column; transition: transform 0.15s ease; }
   .card:hover { transform: translateY(-3px); }
-  .cover { aspect-ratio:3/4; border-radius:6px; margin-bottom:14px; }
+  .cover-wrap { position:relative; aspect-ratio:3/4; border-radius:6px; margin-bottom:14px; overflow:hidden; }
+  .cover { width:100%; height:100%; object-fit:cover; display:block; }
+  .cover-fallback { width:100%; height:100%; }
+  .zoom-btn { position:absolute; top:8px; left:8px; z-index:2; background:rgba(0,0,0,0.6); border:1px solid rgba(255,255,255,0.2);
+              color:#fff; width:30px; height:30px; border-radius:6px; cursor:pointer; font-size:14px;
+              transition:transform 0.15s ease, background 0.15s ease; }
+  .zoom-btn:hover { background:var(--accent); }
+  .zoom-btn:active { transform:scale(0.9); }
+  .sold-badge { position:absolute; inset:0; background:rgba(0,0,0,0.72); display:flex; align-items:center; justify-content:center;
+                color:#fff; font-weight:700; font-size:14px; letter-spacing:0.05em; text-align:center; }
   .card h3 { margin:0 0 4px; font-size:16px; }
+  .card p.desc { margin:0 0 10px; font-size:12.5px; color:var(--text-muted); line-height:1.5; }
   .card p.price { margin:0 0 16px; color:var(--text-dim); font-size:14px; }
+  .countdown { font-size:12px; color:var(--accent); margin:0 0 10px; }
   .buy-btn {
     margin-top:auto;
     background: linear-gradient(135deg, var(--accent), var(--accent-dark));
@@ -41,6 +52,29 @@
   }
   .buy-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.5); filter: brightness(1.08); }
   .buy-btn:active { transform: translateY(0) scale(0.95); box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4); filter: brightness(0.92); }
+  .buy-btn.disabled { pointer-events:none; opacity:0.5; box-shadow:none; }
+  .zoom-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; display:flex; align-items:center; justify-content:center; }
+  .zoom-overlay img, .zoom-overlay div.fallback { max-width:90%; max-height:90%; border-radius:8px; }
+  .zoom-overlay div.fallback { width:280px; height:373px; }
+  .zoom-overlay-close { position:absolute; top:14px; right:14px; background:rgba(0,0,0,0.5); border:none; color:#fff; font-size:20px; width:32px; height:32px; border-radius:50%; cursor:pointer; z-index:3; }
+  .detail-modal { background:var(--bg-elevated); border:1px solid var(--border); border-radius:14px; max-width:640px; width:92vw;
+                  max-height:88vh; overflow-y:auto; position:relative; display:flex; flex-direction:column; }
+  @media (min-width:640px) { .detail-modal { flex-direction:row; } }
+  .detail-cover { position:relative; flex:0 0 auto; width:100%; aspect-ratio:3/4; }
+  @media (min-width:640px) { .detail-cover { width:240px; } }
+  .detail-cover img, .detail-cover .fallback { width:100%; height:100%; object-fit:cover; display:block; }
+  .detail-info { padding:22px; flex:1; }
+  .detail-info h2 { margin:0 0 4px; font-size:1.3rem; }
+  .detail-subtitle { margin:0 0 12px; color:var(--text-muted); font-size:14px; font-style:italic; }
+  .detail-desc { margin:0 0 18px; color:var(--text-muted); font-size:14px; line-height:1.6; }
+  .detail-price-box { background:#0f0f0f; border:1px solid var(--border); border-radius:8px; padding:12px 14px; margin-bottom:16px; }
+  .price-row { display:flex; justify-content:space-between; font-size:13px; color:var(--text-muted); padding:3px 0; }
+  .price-row.sale span:last-child { color:#4ade80; }
+  .price-row.total { border-top:1px solid var(--border); margin-top:6px; padding-top:8px; font-weight:700; font-size:15px; color:var(--text); }
+  .strike { text-decoration:line-through; color:var(--text-dim); font-weight:400; }
+  .subtitle { margin:0 0 6px; font-size:12px; color:var(--text-muted); font-style:italic; }
+  .sale-badge { position:absolute; top:8px; right:8px; background:#16a34a; color:#fff; font-size:11px; font-weight:700;
+                padding:3px 8px; border-radius:5px; z-index:2; }
 
   footer { border-top:1px solid var(--border); padding:40px 24px; display:flex; flex-wrap:wrap;
            gap:24px; font-size:13px; color:var(--text-dim); }
@@ -72,10 +106,10 @@
 <script src="admin-config.js"></script>
 <script>
   const FALLBACK_EBOOKS = [
-    { title: 'The Long Way Home', price: '$9.00', color: 'linear-gradient(135deg,#ef4444,#991b1b)', payment_link: 'https://buy.stripe.com/REPLACE_ME_1' },
-    { title: 'Field Notes', price: '$6.50', color: 'linear-gradient(135deg,#78716c,#292524)', payment_link: 'https://buy.stripe.com/REPLACE_ME_2' },
-    { title: 'Quiet Hours', price: '$8.00', color: 'linear-gradient(135deg,#57534e,#1c1917)', payment_link: 'https://buy.stripe.com/REPLACE_ME_3' },
-    { title: 'After the Rain', price: '$7.25', color: 'linear-gradient(135deg,#dc2626,#7f1d1d)', payment_link: 'https://buy.stripe.com/REPLACE_ME_4' },
+    { title: 'The Long Way Home', subtitle: 'a novel', description: 'A quiet story about finding your way back.', price: '$9.00', on_sale: false, sale_price: '', color: 'linear-gradient(135deg,#ef4444,#991b1b)', cover_image: '', payment_link: 'https://buy.stripe.com/REPLACE_ME_1', sold_out: false, available_at: '' },
+    { title: 'Field Notes', subtitle: 'essays', description: 'Short essays from years on the road.', price: '$6.50', on_sale: false, sale_price: '', color: 'linear-gradient(135deg,#78716c,#292524)', cover_image: '', payment_link: 'https://buy.stripe.com/REPLACE_ME_2', sold_out: false, available_at: '' },
+    { title: 'Quiet Hours', subtitle: 'collected works', description: 'Our most personal collection yet.', price: '$8.00', on_sale: false, sale_price: '', color: 'linear-gradient(135deg,#57534e,#1c1917)', cover_image: '', payment_link: 'https://buy.stripe.com/REPLACE_ME_3', sold_out: false, available_at: '' },
+    { title: 'After the Rain', subtitle: 'a novel', description: 'A slow, hopeful read for grey afternoons.', price: '$7.25', on_sale: false, sale_price: '', color: 'linear-gradient(135deg,#dc2626,#7f1d1d)', cover_image: '', payment_link: 'https://buy.stripe.com/REPLACE_ME_4', sold_out: false, available_at: '' },
   ];
 
   function escHtml(s) {
@@ -92,16 +126,83 @@
     return /^[a-zA-Z0-9#(),.\-\s%]+$/.test(c || '') ? c : '#0a0a0a';
   }
 
+  function openZoom(b) {
+    const hasSale = b.on_sale && b.sale_price;
+    const overlay = document.createElement('div');
+    overlay.className = 'zoom-overlay';
+    overlay.innerHTML = `
+      <div class="detail-modal" onclick="event.stopPropagation()">
+        <button class="zoom-overlay-close">✕</button>
+        <div class="detail-cover">
+          ${b.cover_image
+            ? `<img src="${safeUrl(b.cover_image)}" alt="${escHtml(b.title)} cover">`
+            : `<div class="fallback" style="background:${safeColor(b.color)}"></div>`}
+          ${b.sold_out ? `<div class="sold-badge">SOLD OUT${b.available_at ? '<br>' + escHtml(countdownText(b.available_at)) : ''}</div>` : ''}
+        </div>
+        <div class="detail-info">
+          <h2>${escHtml(b.title)}</h2>
+          ${b.subtitle ? `<p class="detail-subtitle">${escHtml(b.subtitle)}</p>` : ''}
+          ${b.description ? `<p class="detail-desc">${escHtml(b.description)}</p>` : ''}
+          <div class="detail-price-box">
+            <div class="price-row"><span>Cost</span><span class="${hasSale ? 'strike' : ''}">${escHtml(b.price)}</span></div>
+            ${hasSale ? `<div class="price-row sale"><span>Seasonal sale</span><span>−${escHtml(discountText(b.price, b.sale_price))}</span></div>` : ''}
+            <div class="price-row total"><span>Total</span><span>${escHtml(hasSale ? b.sale_price : b.price)}</span></div>
+          </div>
+          <a class="buy-btn${b.sold_out ? ' disabled' : ''}" href="${b.sold_out ? '#' : safeUrl(b.payment_link)}">${b.sold_out ? 'Sold out' : 'Buy now'}</a>
+        </div>
+      </div>`;
+    overlay.addEventListener('click', () => overlay.remove());
+    overlay.querySelector('.zoom-overlay-close').addEventListener('click', () => overlay.remove());
+    document.body.appendChild(overlay);
+  }
+
+  function discountText(price, salePrice) {
+    const p = parseFloat(String(price).replace(/[^0-9.]/g, ''));
+    const s = parseFloat(String(salePrice).replace(/[^0-9.]/g, ''));
+    if (isNaN(p) || isNaN(s) || p <= 0) return salePrice;
+    const pct = Math.round((1 - s / p) * 100);
+    return pct > 0 ? `${pct}%` : salePrice;
+  }
+
+  function countdownText(availableAt) {
+    const target = new Date(availableAt).getTime();
+    const now = Date.now();
+    if (isNaN(target) || target <= now) return '';
+    const diff = target - now;
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins = Math.floor((diff % 3600000) / 60000);
+    if (days > 0) return `Back in stock in ${days}d ${hours}h`;
+    if (hours > 0) return `Back in stock in ${hours}h ${mins}m`;
+    return `Back in stock in ${mins}m`;
+  }
+
   function renderGrid(ebooks) {
     const grid = document.getElementById('grid');
-    grid.innerHTML = ebooks.map(b => `
+    grid.innerHTML = ebooks.map((b, i) => {
+      const hasSale = b.on_sale && b.sale_price;
+      return `
       <div class="card">
-        <div class="cover" style="background:${safeColor(b.color)}"></div>
+        <div class="cover-wrap">
+          <button type="button" class="zoom-btn" data-zoom="${i}" title="Zoom in for full details">🔍</button>
+          ${b.cover_image
+            ? `<img class="cover" src="${safeUrl(b.cover_image)}" alt="${escHtml(b.title)} cover">`
+            : `<div class="cover-fallback" style="background:${safeColor(b.color)}"></div>`}
+          ${b.sold_out ? `<div class="sold-badge">SOLD OUT${b.available_at ? '<br>' + escHtml(countdownText(b.available_at)) : ''}</div>` : ''}
+          ${hasSale && !b.sold_out ? `<div class="sale-badge">SALE</div>` : ''}
+        </div>
         <h3>${escHtml(b.title)}</h3>
-        <p class="price">${escHtml(b.price)}</p>
-        <a class="buy-btn" href="${safeUrl(b.payment_link)}">Buy now</a>
+        ${b.subtitle ? `<p class="subtitle">${escHtml(b.subtitle)}</p>` : ''}
+        ${b.description ? `<p class="desc">${escHtml(b.description)}</p>` : ''}
+        <p class="price">${hasSale ? `<span class="strike">${escHtml(b.price)}</span> ${escHtml(b.sale_price)}` : escHtml(b.price)}</p>
+        <a class="buy-btn${b.sold_out ? ' disabled' : ''}" href="${b.sold_out ? '#' : safeUrl(b.payment_link)}">${b.sold_out ? 'Sold out' : 'Buy now'}</a>
       </div>
-    `).join('');
+    `;
+    }).join('');
+
+    document.querySelectorAll('[data-zoom]').forEach(btn => {
+      btn.addEventListener('click', () => openZoom(ebooks[+btn.dataset.zoom]));
+    });
   }
 
   async function loadEbooks() {

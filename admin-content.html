@@ -13,7 +13,19 @@
   .card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;position:relative;}
   .card label{display:block;font-size:12px;color:var(--text-muted);margin:10px 0 4px;}
   .card label:first-child{margin-top:0;}
+  .file-status{font-size:12px;color:var(--text-dim);margin-top:4px;}
+  .cover-preview-wrap{position:relative;width:100%;aspect-ratio:3/4;max-width:160px;background:#0f0f0f;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;}
+  .cover-preview{width:100%;height:100%;object-fit:cover;display:block;}
+  .cover-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:12px;}
+  .zoom-btn{position:absolute;top:6px;left:6px;z-index:2;background:rgba(0,0,0,0.6);border:1px solid var(--border);color:#fff;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;}
+  .zoom-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;}
+  .zoom-overlay img{max-width:90%;max-height:90%;border-radius:8px;}
+  .zoom-overlay-close{position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;}
   .card input{width:100%;padding:8px 10px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;}
+  .card textarea{width:100%;padding:8px 10px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:inherit;resize:vertical;min-height:60px;}
+  .card .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:10px;}
+  .card .checkbox-row input{width:auto;}
+  .card .checkbox-row label{margin:0;font-size:13px;color:var(--text);}
   .remove-btn{position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text-muted);font-size:18px;cursor:pointer;line-height:1;padding:4px;}
   .remove-btn:hover{color:var(--accent);}
   .add-btn{width:100%;padding:10px;background:none;border:1.5px dashed var(--border);border-radius:8px;color:var(--text-muted);font-size:14px;cursor:pointer;}
@@ -91,16 +103,63 @@
         </div>`;
     }
     function ebookCardHTML(e, i) {
+      const hasCover = !!e.cover_image;
+      const hasFile = !!e.file_path;
       return `
         <div class="card" data-index="${i}">
           <button class="remove-btn" data-remove-ebook="${i}">✕</button>
+
           <label>Title</label><input data-field="title" value="${esc(e.title)}">
+
+          <label>Subtitle</label><input data-field="subtitle" value="${esc(e.subtitle)}">
+
+          <label>Description</label><textarea data-field="description">${esc(e.description)}</textarea>
+
+          <label>Ebook file (PDF/EPUB)</label>
+          <input type="file" accept=".pdf,.epub" data-file-input="ebook" data-index="${i}">
+          <div class="file-status" data-file-status="ebook-${i}">${hasFile ? '📄 File uploaded — pick a new one to replace it' : 'No file uploaded yet'}</div>
+          <input type="hidden" data-field="file_path" value="${esc(e.file_path)}">
+
+          <label>Cover image</label>
+          <div class="cover-preview-wrap">
+            <button type="button" class="zoom-btn" data-zoom-preview="${i}" title="Zoom in on cover">🔍</button>
+            <img class="cover-preview" data-cover-preview="${i}" src="${hasCover ? esc(e.cover_image) : ''}" style="${hasCover ? '' : 'display:none;'}">
+            <div class="cover-placeholder" data-cover-placeholder="${i}" style="${hasCover ? 'display:none;' : ''}">No cover yet</div>
+          </div>
+          <input type="file" accept="image/*" data-file-input="cover" data-index="${i}">
+          <input type="hidden" data-field="cover_image" value="${esc(e.cover_image)}">
+
           <label>Price (shown to buyers)</label><input data-field="price" value="${esc(e.price)}">
-          <label>Cover (CSS gradient or color)</label><input data-field="color" value="${esc(e.color)}">
           <label>Payment link</label><input data-field="payment_link" value="${esc(e.payment_link)}">
+
+          <div class="checkbox-row">
+            <input type="checkbox" data-field="on_sale" id="sale-${i}" ${e.on_sale ? 'checked' : ''}>
+            <label for="sale-${i}">Seasonal sale active</label>
+          </div>
+          <label>Sale price (final price buyer pays, shown as "Total")</label>
+          <input data-field="sale_price" value="${esc(e.sale_price)}">
+
+          <div class="checkbox-row">
+            <input type="checkbox" data-field="sold_out" id="sold-${i}" ${e.sold_out ? 'checked' : ''}>
+            <label for="sold-${i}">Sold out</label>
+          </div>
+          <label>Available again on (shown to buyers while sold out)</label>
+          <input type="datetime-local" data-field="available_at" value="${esc(e.available_at)}">
         </div>`;
     }
-    function esc(v) { return (v || '').toString().replace(/"/g, '&quot;'); }
+    function esc(v) {
+      return (v || '').toString()
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    async function uploadToStorage(bucket, file) {
+      const path = `${Date.now()}-${file.name}`.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true });
+      if (error) throw error;
+      const { data } = sb.storage.from(bucket).getPublicUrl(path);
+      return data.publicUrl;
+    }
 
     function renderBanners() {
       document.getElementById('bannerList').innerHTML = banners.map(bannerCardHTML).join('');
@@ -111,8 +170,56 @@
     function renderEbooks() {
       document.getElementById('ebookList').innerHTML = ebooks.map(ebookCardHTML).join('');
       document.querySelectorAll('[data-remove-ebook]').forEach(btn => {
-        btn.addEventListener('click', () => { ebooks.splice(+btn.dataset.removeEbook, 1); renderEbooks(); });
+        btn.addEventListener('click', () => { ebooks = readEbooksFromDOM(); ebooks.splice(+btn.dataset.removeEbook, 1); renderEbooks(); });
       });
+      document.querySelectorAll('[data-file-input="ebook"]').forEach(inp => {
+        inp.addEventListener('change', async () => {
+          const idx = inp.dataset.index;
+          const statusEl = document.querySelector(`[data-file-status="ebook-${idx}"]`);
+          const file = inp.files[0];
+          if (!file) return;
+          statusEl.textContent = 'Uploading…';
+          try {
+            const url = await uploadToStorage('ebook-files', file);
+            document.querySelector(`[data-index="${idx}"] input[data-field="file_path"]`).value = url;
+            statusEl.textContent = '📄 Uploaded: ' + file.name;
+          } catch (err) {
+            statusEl.textContent = 'Upload failed: ' + err.message;
+          }
+        });
+      });
+      document.querySelectorAll('[data-file-input="cover"]').forEach(inp => {
+        inp.addEventListener('change', async () => {
+          const idx = inp.dataset.index;
+          const card = document.querySelector(`.card[data-index="${idx}"]`);
+          const file = inp.files[0];
+          if (!file) return;
+          try {
+            const url = await uploadToStorage('ebook-covers', file);
+            card.querySelector('input[data-field="cover_image"]').value = url;
+            const img = card.querySelector(`[data-cover-preview="${idx}"]`);
+            img.src = url; img.style.display = '';
+            card.querySelector(`[data-cover-placeholder="${idx}"]`).style.display = 'none';
+          } catch (err) {
+            alert('Cover upload failed: ' + err.message);
+          }
+        });
+      });
+      document.querySelectorAll('[data-zoom-preview]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = btn.dataset.zoomPreview;
+          const img = document.querySelector(`[data-cover-preview="${idx}"]`);
+          if (img && img.src) openZoom(img.src);
+        });
+      });
+    }
+
+    function openZoom(src) {
+      const overlay = document.createElement('div');
+      overlay.className = 'zoom-overlay';
+      overlay.innerHTML = `<img src="${src}"><button class="zoom-overlay-close">✕</button>`;
+      overlay.addEventListener('click', () => overlay.remove());
+      document.body.appendChild(overlay);
     }
 
     function readBannersFromDOM() {
@@ -125,9 +232,27 @@
     function readEbooksFromDOM() {
       return [...document.querySelectorAll('#ebookList .card')].map(card => {
         const obj = {};
-        card.querySelectorAll('input[data-field]').forEach(inp => obj[inp.dataset.field] = inp.value);
+        card.querySelectorAll('input[data-field], textarea[data-field]').forEach(inp => {
+          obj[inp.dataset.field] = inp.type === 'checkbox' ? inp.checked : inp.value;
+        });
         return obj;
       });
+    }
+
+    function validateEbooks(list) {
+      const required = ['title', 'description', 'file_path', 'cover_image', 'price', 'payment_link'];
+      const labels = { title: 'Title', description: 'Description', file_path: 'Ebook file', cover_image: 'Cover image', price: 'Price', payment_link: 'Payment link', sale_price: 'Sale price' };
+      for (let i = 0; i < list.length; i++) {
+        for (const field of required) {
+          if (!list[i][field] || !String(list[i][field]).trim()) {
+            return `Ebook #${i + 1} is missing "${labels[field]}" — fill that in before saving.`;
+          }
+        }
+        if (list[i].on_sale && (!list[i].sale_price || !String(list[i].sale_price).trim())) {
+          return `Ebook #${i + 1} has "Seasonal sale" checked but no "Sale price" set — fill that in before saving.`;
+        }
+      }
+      return null;
     }
 
     document.getElementById('addBanner').addEventListener('click', () => {
@@ -137,7 +262,7 @@
     });
     document.getElementById('addEbook').addEventListener('click', () => {
       ebooks = readEbooksFromDOM();
-      ebooks.push({ title: '', price: '', color: 'linear-gradient(135deg,#ef4444,#991b1b)', payment_link: '' });
+      ebooks.push({ title: '', subtitle: '', description: '', file_path: '', cover_image: '', price: '', payment_link: '', on_sale: false, sale_price: '', sold_out: false, available_at: '' });
       renderEbooks();
     });
 
@@ -151,8 +276,14 @@
     });
     document.getElementById('saveEbooks').addEventListener('click', async () => {
       const statusEl = document.getElementById('ebookStatus');
-      statusEl.textContent = 'Saving…'; statusEl.className = 'status';
       const updated = readEbooksFromDOM();
+      const problem = validateEbooks(updated);
+      if (problem) {
+        statusEl.textContent = problem;
+        statusEl.className = 'status err';
+        return;
+      }
+      statusEl.textContent = 'Saving…'; statusEl.className = 'status';
       const { error } = await sb.from('site_content').update({ value: updated, updated_at: new Date().toISOString() }).eq('key', 'ebooks');
       statusEl.textContent = error ? `Failed: ${error.message}` : 'Saved ✓';
       statusEl.className = 'status ' + (error ? 'err' : 'ok');
