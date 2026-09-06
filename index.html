@@ -334,7 +334,7 @@
     <a href="terms.html">Terms</a>
     <a href="privacy.html">Privacy</a>
   </div>
-  <a href="admin-login.html" class="cta" style="text-decoration:none;">Sign in</a>
+  <a href="login.html" class="cta" style="text-decoration:none;">Sign in</a>
 </nav>
 
 <section class="slider" id="slider">
@@ -382,10 +382,10 @@
     { title: 'Read the first chapter free', subtitle: 'No account needed, no strings attached.', cta_text: 'Start reading', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#b91c1c,#0a0a0a)' },
   ];
   const FALLBACK_EBOOKS = [
-    { title: 'The Long Way Home', price: '$9.00', color: 'linear-gradient(135deg,#ef4444,#991b1b)' },
-    { title: 'Field Notes', price: '$6.50', color: 'linear-gradient(135deg,#78716c,#292524)' },
-    { title: 'Quiet Hours', price: '$8.00', color: 'linear-gradient(135deg,#57534e,#1c1917)' },
-    { title: 'After the Rain', price: '$7.25', color: 'linear-gradient(135deg,#dc2626,#7f1d1d)' },
+    { title: 'The Long Way Home', price: '$9.00', color: 'linear-gradient(135deg,#ef4444,#991b1b)', cover_image: '', sold_out: false },
+    { title: 'Field Notes', price: '$6.50', color: 'linear-gradient(135deg,#78716c,#292524)', cover_image: '', sold_out: false },
+    { title: 'Quiet Hours', price: '$8.00', color: 'linear-gradient(135deg,#57534e,#1c1917)', cover_image: '', sold_out: false },
+    { title: 'After the Rain', price: '$7.25', color: 'linear-gradient(135deg,#dc2626,#7f1d1d)', cover_image: '', sold_out: false },
   ];
 
   function escHtml(s) {
@@ -417,8 +417,13 @@
   function renderCatalogGrid(ebooks) {
     const grid = document.getElementById('catalogGrid');
     grid.innerHTML = ebooks.slice(0, 4).map(b => `
-      <a href="ebooks.html" class="card" style="text-decoration:none;color:inherit;display:block;">
-        <div class="cover" style="background:${safeColor(b.color)}"></div>
+      <a href="ebooks.html" class="card" style="text-decoration:none;color:inherit;display:block;position:relative;">
+        <div style="position:relative;">
+          ${b.cover_image
+            ? `<img src="${safeUrl(b.cover_image)}" alt="${escHtml(b.title)} cover" class="cover" style="object-fit:cover;">`
+            : `<div class="cover" style="background:${safeColor(b.color)}"></div>`}
+          ${b.sold_out ? `<div style="position:absolute;inset:0;background:rgba(0,0,0,0.72);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px;border-radius:6px;">SOLD OUT</div>` : ''}
+        </div>
         <h3>${escHtml(b.title)}</h3>
         <p>${escHtml(b.price)}</p>
       </a>

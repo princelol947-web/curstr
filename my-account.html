@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account</title>
+<style>
+  :root{--bg:#0a0a0a;--bg-elevated:#171717;--border:#262626;--text:#f5f5f5;--text-muted:#a3a3a3;--text-dim:#737373;--accent:#ef4444;--accent-dark:#991b1b;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);}
+  header a{color:var(--text-muted);text-decoration:none;font-size:14px;}
+  button.signout{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer;}
+  button.signout:hover{border-color:var(--accent);color:var(--accent);}
+  main{max-width:640px;margin:0 auto;padding:32px 20px 80px;}
+  h1{font-size:1.4rem;margin:0 0 4px;}
+  .sub{color:var(--text-muted);font-size:13px;margin:0 0 28px;}
+  .order{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;
+         display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .order h3{margin:0 0 4px;font-size:15px;}
+  .order p{margin:0;font-size:12px;color:var(--text-dim);}
+  .download-btn{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;font-weight:600;
+                 padding:8px 14px;border-radius:6px;text-decoration:none;font-size:13px;white-space:nowrap;}
+  .empty{text-align:center;color:var(--text-dim);padding:40px 0;font-size:14px;}
+</style>
+</head>
+<body>
+<header>
+  <div><strong>My Account</strong></div>
+  <div><span id="userEmailLabel" style="color:var(--text-dim);font-size:13px;"></span> <button class="signout" id="signOut">Sign out</button></div>
+</header>
+
+<main>
+  <h1>Your purchases</h1>
+  <p class="sub">Every ebook you've bought with this email, with a link to download it again.</p>
+  <div id="orderList"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin-config.js?v=2"></script>
+<script>
+  if (typeof supabase === 'undefined' || typeof SUPABASE_URL === 'undefined') {
+    document.querySelector('main').innerHTML = '<p class="empty">Could not load — check your connection and reload.</p>';
+  } else {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function escHtml(s) {
+      return (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+      document.getElementById('userEmailLabel').textContent = session.user.email;
+
+      // Pull this user's own orders (RLS restricts this to rows matching their email)
+      const { data: orders, error } = await sb
+        .from('orders')
+        .select('ebook_title, created_at, status')
+        .eq('status', 'paid')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        document.getElementById('orderList').innerHTML = `<p class="empty">Couldn't load your purchases: ${escHtml(error.message)}</p>`;
+        return;
+      }
+
+      // Look up current download links for each purchased title
+      let ebooksByTitle = {};
+      const { data: contentRow } = await sb.from('site_content').select('value').eq('key', 'ebooks').maybeSingle();
+      if (contentRow && contentRow.value) {
+        contentRow.value.forEach(b => { ebooksByTitle[b.title] = b.file_path; });
+      }
+
+      if (!orders || orders.length === 0) {
+        document.getElementById('orderList').innerHTML = '<p class="empty">No purchases yet — browse the <a href="ebooks.html" style="color:var(--accent);">Ebooks page</a> to get started.</p>';
+        return;
+      }
+
+      document.getElementById('orderList').innerHTML = orders.map(o => `
+        <div class="order">
+          <div>
+            <h3>${escHtml(o.ebook_title)}</h3>
+            <p>Purchased ${new Date(o.created_at).toLocaleDateString()}</p>
+          </div>
+          ${ebooksByTitle[o.ebook_title] ? `<a class="download-btn" href="${escHtml(ebooksByTitle[o.ebook_title])}">Download</a>` : `<span style="font-size:12px;color:var(--text-dim);">Link unavailable</span>`}
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('signOut').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      window.location.href = 'login.html';
+    });
+
+    init();
+  }
+</script>
+</body></html>
