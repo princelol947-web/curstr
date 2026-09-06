@@ -176,7 +176,14 @@
     function renderEbooks() {
       document.getElementById('ebookList').innerHTML = ebooks.map(ebookCardHTML).join('');
       document.querySelectorAll('[data-remove-ebook]').forEach(btn => {
-        btn.addEventListener('click', () => { ebooks = readEbooksFromDOM(); ebooks.splice(+btn.dataset.removeEbook, 1); renderEbooks(); });
+        btn.addEventListener('click', () => {
+          ebooks = readEbooksFromDOM();
+          const target = ebooks[+btn.dataset.removeEbook];
+          const name = (target && target.title) ? `"${target.title}"` : 'this ebook';
+          if (!confirm(`Delete ${name} permanently? This can't be undone once you save.`)) return;
+          ebooks.splice(+btn.dataset.removeEbook, 1);
+          renderEbooks();
+        });
       });
       document.querySelectorAll('[data-file-input="ebook"]').forEach(inp => {
         inp.addEventListener('change', async () => {

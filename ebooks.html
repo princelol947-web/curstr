@@ -22,7 +22,16 @@
 
   main { max-width:1100px; margin:0 auto; padding:48px 24px 80px; }
   h1 { font-size:2rem; margin:0 0 8px; }
-  .sub { color:var(--text-muted); margin:0 0 40px; }
+  .sub { color:var(--text-muted); margin:0 0 20px; }
+  .top-seller-box { display:flex; align-items:center; gap:14px; background:linear-gradient(135deg,rgba(239,68,68,0.15),rgba(153,27,27,0.05));
+                    border:1px solid var(--accent); border-radius:10px; padding:14px 16px; margin-bottom:24px; }
+  .top-seller-box .badge { background:var(--accent); color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:5px; white-space:nowrap; }
+  .top-seller-box .name { font-size:14px; font-weight:600; }
+  .top-seller-box .count { font-size:12px; color:var(--text-muted); margin-left:auto; white-space:nowrap; }
+  .search-input { width:100%; padding:12px 16px; margin-bottom:32px; background:var(--bg-elevated);
+                  border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:15px; }
+  .search-input:focus-visible { outline:2px solid var(--accent); }
+  .empty-search { text-align:center; color:var(--text-dim); padding:32px 0; font-size:14px; }
 
   .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:24px; }
   .card { background:var(--bg-elevated); border:1px solid var(--border); border-radius:10px;
@@ -93,7 +102,10 @@
 <main>
   <h1>All ebooks</h1>
   <p class="sub">Every purchase goes straight to me — no distributor, no reseller.</p>
+  <div id="topSellerBox" style="display:none;"></div>
+  <input type="text" id="searchBox" placeholder="Search ebooks by title…" class="search-input">
   <div class="grid" id="grid"></div>
+  <p id="noResults" class="empty-search" style="display:none;">No ebooks match your search.</p>
   <p style="margin-top:28px;font-size:13px;color:var(--text-dim);">By completing a purchase, you agree to our <a href="terms.html" style="color:var(--accent);">Terms</a> and consent to our <a href="privacy.html" style="color:var(--accent);">Privacy Policy</a>, including use of your email to deliver your ebook.</p>
 </main>
 
@@ -212,15 +224,40 @@
 
   async function loadEbooks() {
     let ebooks = FALLBACK_EBOOKS;
+    let sb;
     if (typeof supabase !== 'undefined') {
       try {
-        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const { data, error } = await sb.from('site_content').select('value').eq('key', 'ebooks').single();
         if (!error && data && data.value && data.value.length) ebooks = data.value;
       } catch (e) { /* fall back to defaults below */ }
     }
     renderGrid(ebooks);
+    if (sb) loadTopSeller(sb, ebooks);
+
+    document.getElementById('searchBox').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      const matches = !q ? ebooks : ebooks.filter(b =>
+        (b.title || '').toLowerCase().includes(q) ||
+        (b.subtitle || '').toLowerCase().includes(q) ||
+        (b.description || '').toLowerCase().includes(q)
+      );
+      renderGrid(matches);
+      document.getElementById('noResults').style.display = matches.length === 0 ? 'block' : 'none';
+    });
   }
+  async function loadTopSeller(sb, ebooks) {
+    try {
+      const { data, error } = await sb.from('public_ebook_sales').select('ebook_title, sales_count').order('sales_count', { ascending: false }).limit(1);
+      if (error || !data || !data.length || data[0].sales_count < 1) return;
+      const top = data[0];
+      const box = document.getElementById('topSellerBox');
+      box.className = 'top-seller-box';
+      box.style.display = 'flex';
+      box.innerHTML = `<span class="badge">🔥 TOP SELLER</span><span class="name">${escHtml(top.ebook_title)}</span><span class="count">${top.sales_count} sold</span>`;
+    } catch (e) { /* no top seller shown if this fails — non-critical */ }
+  }
+
   loadEbooks();
 </script>
 <script src="chatbot.js"></script>
