@@ -14,6 +14,7 @@
   .card label{display:block;font-size:12px;color:var(--text-muted);margin:10px 0 4px;}
   .card label:first-child{margin-top:0;}
   .file-status{font-size:12px;color:var(--text-dim);margin-top:4px;}
+  .status-note{font-size:12px;color:var(--accent);margin-top:8px;line-height:1.5;}
   .cover-preview-wrap{position:relative;width:100%;aspect-ratio:3/4;max-width:160px;background:#0f0f0f;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;}
   .cover-preview{width:100%;height:100%;object-fit:cover;display:block;}
   .cover-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:12px;}
@@ -151,6 +152,7 @@
           </div>
           <label>Available again on (shown to buyers while sold out)</label>
           <input type="datetime-local" data-field="available_at" value="${esc(e.available_at)}">
+          <div class="status-note" data-status-note="${i}"></div>
         </div>`;
     }
     function esc(v) {
@@ -175,6 +177,7 @@
     }
     function renderEbooks() {
       document.getElementById('ebookList').innerHTML = ebooks.map(ebookCardHTML).join('');
+      updateStatusNotes();
       document.querySelectorAll('[data-remove-ebook]').forEach(btn => {
         btn.addEventListener('click', () => {
           ebooks = readEbooksFromDOM();
@@ -242,6 +245,23 @@
         return obj;
       });
     }
+    function statusNoteText(e) {
+      if (!e.sold_out) return '';
+      if (!e.available_at) return '⏳ Currently sold out indefinitely (no return date set).';
+      const target = new Date(e.available_at).getTime();
+      if (isNaN(target)) return '';
+      if (target > Date.now()) return '⏳ Currently sold out — countdown running for buyers.';
+      return '✅ Timer has expired — buyers already see this as available again, even though this checkbox is still on. Uncheck "Sold out" here to match, or leave it — buyers aren\'t affected either way.';
+    }
+
+    function updateStatusNotes() {
+      document.querySelectorAll('[data-status-note]').forEach(el => {
+        const idx = +el.dataset.statusNote;
+        el.textContent = statusNoteText(ebooks[idx] || {});
+      });
+    }
+    setInterval(() => { if (ebooks.some(e => e.sold_out && e.available_at)) updateStatusNotes(); }, 1000);
+
     function readEbooksFromDOM() {
       return [...document.querySelectorAll('#ebookList .card')].map(card => {
         const obj = {};

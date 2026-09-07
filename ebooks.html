@@ -141,6 +141,7 @@
 
   function openZoom(b) {
     const hasSale = b.on_sale && b.sale_price;
+    const soldOut = isEffectivelySoldOut(b);
     const overlay = document.createElement('div');
     overlay.className = 'zoom-overlay';
     overlay.innerHTML = `
@@ -150,7 +151,7 @@
           ${b.cover_image
             ? `<img src="${safeUrl(b.cover_image)}" alt="${escHtml(b.title)} cover">`
             : `<div class="fallback" style="background:${safeColor(b.color)}"></div>`}
-          ${b.sold_out ? `<div class="sold-badge">SOLD OUT${b.available_at ? '<br>' + escHtml(countdownText(b.available_at)) : ''}</div>` : ''}
+          ${soldBadgeHTML(b)}
         </div>
         <div class="detail-info">
           <h2>${escHtml(b.title)}</h2>
@@ -161,7 +162,7 @@
             ${hasSale ? `<div class="price-row sale"><span>Seasonal sale</span><span>−${escHtml(discountText(b.price, b.sale_price))}</span></div>` : ''}
             <div class="price-row total"><span>Total</span><span>${escHtml(hasSale ? b.sale_price : b.price)}</span></div>
           </div>
-          <a class="buy-btn${b.sold_out ? ' disabled' : ''}" href="${b.sold_out ? '#' : safeUrl(b.payment_link)}">${b.sold_out ? 'Sold out' : 'Buy now'}</a>
+          <a class="buy-btn${soldOut ? ' disabled' : ''}" href="${soldOut ? '#' : safeUrl(b.payment_link)}">${soldOut ? 'Sold out' : 'Buy now'}</a>
         </div>
       </div>`;
     overlay.addEventListener('click', () => overlay.remove());
@@ -177,23 +178,35 @@
     return pct > 0 ? `${pct}%` : salePrice;
   }
 
-  function countdownText(availableAt) {
+  function isEffectivelySoldOut(b) {
+    if (!b.sold_out) return false;
+    if (!b.available_at) return true; // sold out indefinitely, no timer set
+    return new Date(b.available_at).getTime() > Date.now();
+  }
+
+  function hmsRemaining(availableAt) {
     const target = new Date(availableAt).getTime();
-    const now = Date.now();
-    if (isNaN(target) || target <= now) return '';
-    const diff = target - now;
-    const days = Math.floor(diff / 86400000);
-    const hours = Math.floor((diff % 86400000) / 3600000);
-    const mins = Math.floor((diff % 3600000) / 60000);
-    if (days > 0) return `Back in stock in ${days}d ${hours}h`;
-    if (hours > 0) return `Back in stock in ${hours}h ${mins}m`;
-    return `Back in stock in ${mins}m`;
+    const diff = target - Date.now();
+    if (isNaN(target) || diff <= 0) return null;
+    const totalSeconds = Math.floor(diff / 1000);
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    const pad = n => String(n).padStart(2, '0');
+    return `${pad(h)}:${pad(m)}:${pad(s)}`;
+  }
+
+  function soldBadgeHTML(b) {
+    if (!isEffectivelySoldOut(b)) return '';
+    const hms = b.available_at ? hmsRemaining(b.available_at) : null;
+    return `<div class="sold-badge">SOLD OUT${hms ? `<br><span class="ticker" data-available-at="${escHtml(b.available_at)}">Available in ${hms}</span>` : ''}</div>`;
   }
 
   function renderGrid(ebooks) {
     const grid = document.getElementById('grid');
     grid.innerHTML = ebooks.map((b, i) => {
       const hasSale = b.on_sale && b.sale_price;
+      const soldOut = isEffectivelySoldOut(b);
       return `
       <div class="card">
         <div class="cover-wrap">
@@ -205,14 +218,14 @@
           ${b.cover_image
             ? `<img class="cover" src="${safeUrl(b.cover_image)}" alt="${escHtml(b.title)} cover">`
             : `<div class="cover-fallback" style="background:${safeColor(b.color)}"></div>`}
-          ${b.sold_out ? `<div class="sold-badge">SOLD OUT${b.available_at ? '<br>' + escHtml(countdownText(b.available_at)) : ''}</div>` : ''}
-          ${hasSale && !b.sold_out ? `<div class="sale-badge">SALE</div>` : ''}
+          ${soldBadgeHTML(b)}
+          ${hasSale && !soldOut ? `<div class="sale-badge">SALE</div>` : ''}
         </div>
         <h3>${escHtml(b.title)}</h3>
         ${b.subtitle ? `<p class="subtitle">${escHtml(b.subtitle)}</p>` : ''}
         ${b.description ? `<p class="desc">${escHtml(b.description)}</p>` : ''}
         <p class="price">${hasSale ? `<span class="strike">${escHtml(b.price)}</span> ${escHtml(b.sale_price)}` : escHtml(b.price)}</p>
-        <a class="buy-btn${b.sold_out ? ' disabled' : ''}" href="${b.sold_out ? '#' : safeUrl(b.payment_link)}">${b.sold_out ? 'Sold out' : 'Buy now'}</a>
+        <a class="buy-btn${soldOut ? ' disabled' : ''}" href="${soldOut ? '#' : safeUrl(b.payment_link)}">${soldOut ? 'Sold out' : 'Buy now'}</a>
       </div>
     `;
     }).join('');
@@ -220,7 +233,24 @@
     document.querySelectorAll('[data-zoom]').forEach(btn => {
       btn.addEventListener('click', () => openZoom(ebooks[+btn.dataset.zoom]));
     });
+
+    currentRenderedEbooks = ebooks;
   }
+
+  let currentRenderedEbooks = [];
+
+  // Ticks every second: updates visible countdown text, and re-renders
+  // automatically the moment any timer hits zero so the ebook unlocks
+  // without needing a reload or any admin action.
+  setInterval(() => {
+    let needsFullRerender = false;
+    document.querySelectorAll('.ticker[data-available-at]').forEach(el => {
+      const hms = hmsRemaining(el.dataset.availableAt);
+      if (!hms) { needsFullRerender = true; }
+      else el.textContent = 'Available in ' + hms;
+    });
+    if (needsFullRerender && currentRenderedEbooks.length) renderGrid(currentRenderedEbooks);
+  }, 1000);
 
   async function loadEbooks() {
     let ebooks = FALLBACK_EBOOKS;
