@@ -11,14 +11,45 @@
   button.signout:hover{border-color:var(--accent);color:var(--accent);}
   main{max-width:640px;margin:0 auto;padding:32px 20px 80px;}
   h1{font-size:1.4rem;margin:0 0 4px;}
-  .sub{color:var(--text-muted);font-size:13px;margin:0 0 28px;}
+  h2{font-size:1rem;color:var(--accent);margin:36px 0 14px;}
+  .sub{color:var(--text-muted);font-size:13px;margin:0 0 8px;}
+
+  .avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:8px;}
+  .avatar{width:72px;height:72px;border-radius:50%;background:var(--bg-elevated);border:2px solid var(--border);
+          object-fit:cover;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:24px;}
+  .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+
+  .card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;}
+  .card label{display:block;font-size:12px;color:var(--text-muted);margin:10px 0 4px;}
+  .card label:first-child{margin-top:0;}
+  .card input{width:100%;padding:9px 12px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;}
+  .card .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:12px;}
+  .card .checkbox-row input{width:auto;}
+  .card .checkbox-row label{margin:0;font-size:13px;color:var(--text);}
+
+  button.primary{margin-top:14px;padding:9px 16px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+                 color:#fff;font-weight:600;border:none;border-radius:6px;font-size:14px;cursor:pointer;}
+  button.primary:hover{filter:brightness(1.08);}
+  button.danger{margin-top:10px;padding:9px 16px;background:none;border:1px solid #f87171;color:#f87171;
+                border-radius:6px;font-size:14px;cursor:pointer;}
+  button.danger:hover{background:rgba(248,113,113,0.1);}
+  button.secondary{margin-top:10px;padding:9px 16px;background:none;border:1px solid var(--border);color:var(--text-muted);
+                    border-radius:6px;font-size:14px;cursor:pointer;}
+  button.secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+  .status{font-size:13px;margin-top:8px;min-height:16px;}
+  .status.ok{color:#4ade80;}
+  .status.err{color:#f87171;}
+
   .order{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;
          display:flex;justify-content:space-between;align-items:center;gap:12px;}
   .order h3{margin:0 0 4px;font-size:15px;}
   .order p{margin:0;font-size:12px;color:var(--text-dim);}
   .download-btn{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;font-weight:600;
                  padding:8px 14px;border-radius:6px;text-decoration:none;font-size:13px;white-space:nowrap;}
-  .empty{text-align:center;color:var(--text-dim);padding:40px 0;font-size:14px;}
+  .empty{text-align:center;color:var(--text-dim);padding:32px 0;font-size:14px;}
+  textarea{width:100%;padding:10px 12px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;
+           color:var(--text);font-size:14px;font-family:inherit;min-height:90px;resize:vertical;}
 </style>
 </head>
 <body>
@@ -28,9 +59,56 @@
 </header>
 
 <main>
-  <h1>Your purchases</h1>
-  <p class="sub">Every ebook you've bought with this email, with a link to download it again.</p>
+  <h1>Your profile</h1>
+  <div class="card">
+    <div class="avatar-row">
+      <div class="avatar" id="avatarBox">👤</div>
+      <div>
+        <input type="file" id="avatarInput" accept="image/*">
+        <p class="status" id="avatarStatus"></p>
+      </div>
+    </div>
+    <label>Display name</label>
+    <input id="nameInput" placeholder="Your name">
+    <button class="primary" id="saveNameBtn">Save name</button>
+    <p class="status" id="nameStatus"></p>
+  </div>
+
+  <h2>Change password</h2>
+  <div class="card">
+    <label>New password</label>
+    <input type="password" id="newPassword" minlength="6" placeholder="At least 6 characters">
+    <button class="primary" id="savePasswordBtn">Update password</button>
+    <p class="status" id="passwordStatus"></p>
+  </div>
+
+  <h2>Preferences</h2>
+  <div class="card">
+    <div class="checkbox-row">
+      <input type="checkbox" id="emailUpdates">
+      <label for="emailUpdates">Email me about new ebooks and sales</label>
+    </div>
+    <button class="primary" id="savePrefsBtn">Save preferences</button>
+    <p class="status" id="prefsStatus"></p>
+  </div>
+
+  <h2>Report a bug / Get help</h2>
+  <div class="card">
+    <label>What's going on?</label>
+    <textarea id="bugText" placeholder="Describe the issue or question…"></textarea>
+    <button class="primary" id="sendBugBtn">Send</button>
+    <p class="status" id="bugStatus"></p>
+  </div>
+
+  <h2>Your purchases</h2>
   <div id="orderList"></div>
+
+  <h2>Account</h2>
+  <div class="card">
+    <p class="sub">Deleting your account permanently removes your login and profile data. Because this needs a secure server-side step, tap below to send a deletion request — we'll confirm and remove it within a few days.</p>
+    <button class="danger" id="deleteBtn">Request account deletion</button>
+    <p class="status" id="deleteStatus"></p>
+  </div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -40,17 +118,105 @@
     document.querySelector('main').innerHTML = '<p class="empty">Could not load — check your connection and reload.</p>';
   } else {
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const ADMIN_CONTACT = typeof ADMIN_EMAIL !== 'undefined' ? ADMIN_EMAIL : '';
 
     function escHtml(s) {
       return (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
+    function setStatus(el, msg, ok) {
+      el.textContent = msg;
+      el.className = 'status ' + (ok ? 'ok' : 'err');
+    }
+
+    let currentUser = null;
 
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { window.location.href = 'login.html'; return; }
-      document.getElementById('userEmailLabel').textContent = session.user.email;
+      currentUser = session.user;
+      document.getElementById('userEmailLabel').textContent = currentUser.email;
 
-      // Pull this user's own orders (RLS restricts this to rows matching their email)
+      const meta = currentUser.user_metadata || {};
+      document.getElementById('nameInput').value = meta.full_name || '';
+      document.getElementById('emailUpdates').checked = !!meta.email_updates;
+      if (meta.avatar_url) {
+        document.getElementById('avatarBox').innerHTML = `<img src="${escHtml(meta.avatar_url)}" alt="avatar">`;
+      }
+
+      loadOrders();
+    }
+
+    // --- Avatar upload ---
+    document.getElementById('avatarInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const statusEl = document.getElementById('avatarStatus');
+      statusEl.textContent = 'Uploading…';
+      try {
+        const path = `${currentUser.id}-${Date.now()}`.replace(/[^a-zA-Z0-9\-_]/g, '_');
+        const { error: upErr } = await sb.storage.from('avatars').upload(path, file, { upsert: true });
+        if (upErr) throw upErr;
+        const { data } = sb.storage.from('avatars').getPublicUrl(path);
+        const { error: metaErr } = await sb.auth.updateUser({ data: { avatar_url: data.publicUrl } });
+        if (metaErr) throw metaErr;
+        document.getElementById('avatarBox').innerHTML = `<img src="${escHtml(data.publicUrl)}" alt="avatar">`;
+        statusEl.textContent = 'Updated ✓';
+      } catch (err) {
+        statusEl.textContent = 'Upload failed: ' + err.message;
+      }
+    });
+
+    // --- Display name ---
+    document.getElementById('saveNameBtn').addEventListener('click', async () => {
+      const statusEl = document.getElementById('nameStatus');
+      const name = document.getElementById('nameInput').value.trim();
+      const { error } = await sb.auth.updateUser({ data: { full_name: name } });
+      setStatus(statusEl, error ? 'Failed: ' + error.message : 'Saved ✓', !error);
+    });
+
+    // --- Password ---
+    document.getElementById('savePasswordBtn').addEventListener('click', async () => {
+      const statusEl = document.getElementById('passwordStatus');
+      const pw = document.getElementById('newPassword').value;
+      if (!pw || pw.length < 6) { setStatus(statusEl, 'Password must be at least 6 characters.', false); return; }
+      const { error } = await sb.auth.updateUser({ password: pw });
+      setStatus(statusEl, error ? 'Failed: ' + error.message : 'Password updated ✓', !error);
+      if (!error) document.getElementById('newPassword').value = '';
+    });
+
+    // --- Preferences ---
+    document.getElementById('savePrefsBtn').addEventListener('click', async () => {
+      const statusEl = document.getElementById('prefsStatus');
+      const checked = document.getElementById('emailUpdates').checked;
+      const { error } = await sb.auth.updateUser({ data: { email_updates: checked } });
+      setStatus(statusEl, error ? 'Failed: ' + error.message : 'Saved ✓', !error);
+    });
+
+    // --- Report a bug / help ---
+    document.getElementById('sendBugBtn').addEventListener('click', () => {
+      const text = document.getElementById('bugText').value.trim();
+      const statusEl = document.getElementById('bugStatus');
+      if (!text) { setStatus(statusEl, 'Write a quick description first.', false); return; }
+      if (!ADMIN_CONTACT) { setStatus(statusEl, 'Contact info not configured yet.', false); return; }
+      const subject = encodeURIComponent('Bug report / help — ' + currentUser.email);
+      const body = encodeURIComponent(`From: ${currentUser.email}\n\n${text}`);
+      window.location.href = `mailto:${ADMIN_CONTACT}?subject=${subject}&body=${body}`;
+      setStatus(statusEl, 'Opening your email app…', true);
+    });
+
+    // --- Delete account request ---
+    document.getElementById('deleteBtn').addEventListener('click', () => {
+      const statusEl = document.getElementById('deleteStatus');
+      if (!confirm('Send a request to permanently delete your account and data?')) return;
+      if (!ADMIN_CONTACT) { setStatus(statusEl, 'Contact info not configured yet.', false); return; }
+      const subject = encodeURIComponent('Account deletion request — ' + currentUser.email);
+      const body = encodeURIComponent(`Please permanently delete my account and associated data.\n\nEmail: ${currentUser.email}`);
+      window.location.href = `mailto:${ADMIN_CONTACT}?subject=${subject}&body=${body}`;
+      setStatus(statusEl, 'Opening your email app to send the request…', true);
+    });
+
+    // --- Purchases ---
+    async function loadOrders() {
       const { data: orders, error } = await sb
         .from('orders')
         .select('ebook_title, created_at, status')
@@ -62,7 +228,6 @@
         return;
       }
 
-      // Look up current download links for each purchased title
       let ebooksByTitle = {};
       const { data: contentRow } = await sb.from('site_content').select('value').eq('key', 'ebooks').maybeSingle();
       if (contentRow && contentRow.value) {
