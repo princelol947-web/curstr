@@ -50,6 +50,22 @@
   nav .logo { font-weight: 600; letter-spacing: -0.02em; white-space: nowrap; }
   nav .logo span { color: var(--accent); }
   nav .links { display: flex; gap: 24px; font-size: 14px; color: var(--text-muted); }
+  .nav-search { flex: 1; max-width: 260px; margin: 0 16px; }
+  .nav-search input { width: 100%; padding: 7px 12px; background: var(--bg-elevated); border: 1px solid var(--border);
+                       border-radius: 6px; color: var(--text); font-size: 13px; }
+  .nav-search input:focus-visible { outline: 2px solid var(--accent); }
+  .hamburger-btn { background: none; border: none; color: var(--text); cursor: pointer; padding: 4px; display: flex; }
+  .hamburger-btn svg { width: 22px; height: 22px; }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .profile-icon { color: var(--text-muted); display: flex; padding: 4px; border-radius: 50%; transition: color 0.15s ease, background 0.15s ease; }
+  .profile-icon svg { width: 20px; height: 20px; }
+  .profile-icon:hover { color: #fff; background: rgba(239,68,68,0.2); }
+  .dropdown-menu { position: absolute; top: 100%; left: 24px; margin-top: 6px; background: var(--bg-elevated);
+                    border: 1px solid var(--border); border-radius: 8px; padding: 8px; display: none; flex-direction: column;
+                    min-width: 180px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 30; }
+  .dropdown-menu.open { display: flex; }
+  .dropdown-menu a { color: var(--text-muted); text-decoration: none; padding: 8px 10px; border-radius: 6px; font-size: 14px; }
+  .dropdown-menu a:hover { background: rgba(239,68,68,0.15); color: #fff; }
   nav .links a { color: inherit; text-decoration: none; white-space: nowrap; }
   nav .links a:hover { color: var(--text); }
   nav .cta {
@@ -69,9 +85,10 @@
   nav .cta:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(239, 68, 68, 0.45); filter: brightness(1.08); }
   nav .cta:active { transform: translateY(0) scale(0.95); box-shadow: 0 2px 6px rgba(239, 68, 68, 0.35); filter: brightness(0.92); }
   @media (max-width: 480px) {
-    nav { padding: 14px 16px; gap: 8px; }
+    nav { padding: 14px 16px; gap: 8px; flex-wrap: wrap; }
     nav .logo { font-size: 15px; }
-    nav .links { gap: 10px; font-size: 12.5px; }
+    .nav-search { order: 3; max-width: 100%; width: 100%; margin: 8px 0 0; flex-basis: 100%; }
+    .nav-right { gap: 8px; }
     nav .cta { padding: 7px 12px; font-size: 13px; }
   }
 
@@ -328,13 +345,26 @@
 <canvas id="bg-canvas"></canvas>
 
 <nav>
+  <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
   <div class="logo">Curse Trading<span>.</span></div>
-  <div class="links">
+  <form id="navSearchForm" class="nav-search">
+    <input type="text" id="navSearchInput" placeholder="Search ebooks…" autocomplete="off">
+  </form>
+  <div class="nav-right">
+    <a href="login.html" id="profileLink" class="profile-icon" aria-label="Account">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+    </a>
+    <a href="login.html" class="cta" style="text-decoration:none;">Sign in</a>
+  </div>
+  <div class="dropdown-menu" id="dropdownMenu">
     <a href="ebooks.html">Browse</a>
+    <a href="my-account.html">My Account</a>
     <a href="terms.html">Terms</a>
     <a href="privacy.html">Privacy</a>
+    <a href="my-account.html#bug">Report a bug / Help</a>
   </div>
-  <a href="login.html" class="cta" style="text-decoration:none;">Sign in</a>
 </nav>
 
 <section class="slider" id="slider">
@@ -509,6 +539,31 @@
   }
 
   loadSiteContent();
+
+  (async function updateProfileLink() {
+    if (typeof supabase === 'undefined' || typeof SUPABASE_URL === 'undefined') return;
+    try {
+      const sbCheck = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const { data: { session } } = await sbCheck.auth.getSession();
+      document.getElementById('profileLink').href = session ? 'my-account.html' : 'login.html';
+    } catch (e) { /* leave default (login.html) if this check fails */ }
+  })();
+
+  document.getElementById('navSearchForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = document.getElementById('navSearchInput').value.trim();
+    window.location.href = 'ebooks.html' + (q ? '?q=' + encodeURIComponent(q) : '');
+  });
+
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const dropdownMenu = document.getElementById('dropdownMenu');
+  hamburgerBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdownMenu.classList.toggle('open');
+  });
+  document.addEventListener('click', (e) => {
+    if (!dropdownMenu.contains(e.target) && e.target !== hamburgerBtn) dropdownMenu.classList.remove('open');
+  });
 </script>
 <script>
   // --- Interactive 2D background: a simple ambient field of drifting, glowing
