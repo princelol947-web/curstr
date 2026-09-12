@@ -25,6 +25,7 @@
   .zoom-overlay img{max-width:90%;max-height:90%;border-radius:8px;}
   .zoom-overlay-close{position:absolute;top:20px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;}
   .card input{width:100%;padding:8px 10px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;}
+  .card select{width:100%;padding:8px 10px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;}
   .card textarea{width:100%;padding:8px 10px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;font-family:inherit;resize:vertical;min-height:60px;}
   .card .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:10px;}
   .card .checkbox-row input{width:auto;}
@@ -54,6 +55,13 @@
   <button class="save-btn" id="saveBanners">Save banners</button>
   <p class="status" id="bannerStatus"></p>
 
+  <h2 style="margin-top:48px;">Categories</h2>
+  <p class="hint">Create the categories your ebooks can belong to (e.g. Latest, Psychology, Study Hacks). Every ebook must have one.</p>
+  <div id="categoryList"></div>
+  <button class="add-btn" id="addCategory">+ Add category</button>
+  <button class="save-btn" id="saveCategories">Save categories</button>
+  <p class="status" id="categoryStatus"></p>
+
   <h2 style="margin-top:48px;">Ebooks</h2>
   <p class="hint">The full list of ebooks — the first 4 show as "Latest releases" on your homepage, all of them show on the Ebooks page.</p>
   <div id="ebookList"></div>
@@ -73,6 +81,7 @@
     const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let banners = [];
     let ebooks = [];
+    let categories = [];
 
     async function init() {
       const { data: { session } } = await sb.auth.getSession();
@@ -88,12 +97,22 @@
       }
       const bannerRow = rows.find(r => r.key === 'banners');
       const ebookRow = rows.find(r => r.key === 'ebooks');
+      const categoryRow = rows.find(r => r.key === 'categories');
       banners = (bannerRow && bannerRow.value) || [];
       ebooks = (ebookRow && ebookRow.value) || [];
+      categories = (categoryRow && categoryRow.value) || [];
+      renderCategories();
       renderBanners();
       renderEbooks();
     }
 
+    function categoryCardHTML(name, i) {
+      return `
+        <div class="card" data-index="${i}" style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
+          <input data-field="name" value="${esc(name)}" placeholder="Category name" style="flex:1;">
+          <button class="remove-btn" data-remove-category="${i}" style="position:static;">✕</button>
+        </div>`;
+    }
     function bannerCardHTML(b, i) {
       return `
         <div class="card" data-index="${i}">
@@ -113,6 +132,12 @@
           <button class="remove-btn" data-remove-ebook="${i}">✕</button>
 
           <label>Title</label><input data-field="title" value="${esc(e.title)}">
+
+          <label>Category</label>
+          <select data-field="category">
+            <option value="">— Select a category —</option>
+            ${categories.map(c => `<option value="${esc(c)}" ${e.category === c ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+          </select>
 
           <label>Subtitle</label><input data-field="subtitle" value="${esc(e.subtitle)}">
 
@@ -169,6 +194,20 @@
       return data.publicUrl;
     }
 
+    function renderCategories() {
+      document.getElementById('categoryList').innerHTML = categories.map(categoryCardHTML).join('');
+      document.querySelectorAll('[data-remove-category]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          categories = readCategoriesFromDOM();
+          categories.splice(+btn.dataset.removeCategory, 1);
+          renderCategories();
+          renderEbooks();
+        });
+      });
+    }
+    function readCategoriesFromDOM() {
+      return [...document.querySelectorAll('#categoryList .card')].map(card => card.querySelector('input[data-field="name"]').value.trim()).filter(Boolean);
+    }
     function renderBanners() {
       document.getElementById('bannerList').innerHTML = banners.map(bannerCardHTML).join('');
       document.querySelectorAll('[data-remove-banner]').forEach(btn => {
@@ -265,7 +304,7 @@
     function readEbooksFromDOM() {
       return [...document.querySelectorAll('#ebookList .card')].map(card => {
         const obj = {};
-        card.querySelectorAll('input[data-field], textarea[data-field]').forEach(inp => {
+        card.querySelectorAll('input[data-field], textarea[data-field], select[data-field]').forEach(inp => {
           obj[inp.dataset.field] = inp.type === 'checkbox' ? inp.checked : inp.value;
         });
         return obj;
@@ -273,8 +312,8 @@
     }
 
     function validateEbooks(list) {
-      const required = ['title', 'description', 'file_path', 'cover_image', 'price', 'payment_link'];
-      const labels = { title: 'Title', description: 'Description', file_path: 'Ebook file', cover_image: 'Cover image', price: 'Price', payment_link: 'Payment link', sale_price: 'Sale price' };
+      const required = ['title', 'category', 'description', 'file_path', 'cover_image', 'price', 'payment_link'];
+      const labels = { title: 'Title', category: 'Category', description: 'Description', file_path: 'Ebook file', cover_image: 'Cover image', price: 'Price', payment_link: 'Payment link', sale_price: 'Sale price' };
       for (let i = 0; i < list.length; i++) {
         for (const field of required) {
           if (!list[i][field] || !String(list[i][field]).trim()) {
@@ -288,6 +327,11 @@
       return null;
     }
 
+    document.getElementById('addCategory').addEventListener('click', () => {
+      categories = readCategoriesFromDOM();
+      categories.push('');
+      renderCategories();
+    });
     document.getElementById('addBanner').addEventListener('click', () => {
       banners = readBannersFromDOM();
       banners.push({ title: '', subtitle: '', cta_text: 'Learn more', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#78350f,#0a0a0a)' });
@@ -295,10 +339,20 @@
     });
     document.getElementById('addEbook').addEventListener('click', () => {
       ebooks = readEbooksFromDOM();
-      ebooks.push({ title: '', subtitle: '', description: '', file_path: '', cover_image: '', price: '', payment_link: '', on_sale: false, sale_price: '', sold_out: false, available_at: '' });
+      ebooks.push({ title: '', category: '', subtitle: '', description: '', file_path: '', cover_image: '', price: '', payment_link: '', on_sale: false, sale_price: '', sold_out: false, available_at: '' });
       renderEbooks();
     });
 
+    document.getElementById('saveCategories').addEventListener('click', async () => {
+      const statusEl = document.getElementById('categoryStatus');
+      const updated = readCategoriesFromDOM();
+      statusEl.textContent = 'Saving…'; statusEl.className = 'status';
+      const { error } = await sb.from('site_content').upsert({ key: 'categories', value: updated, updated_at: new Date().toISOString() });
+      statusEl.textContent = error ? `Failed: ${error.message}` : 'Saved ✓';
+      statusEl.className = 'status ' + (error ? 'err' : 'ok');
+      categories = updated;
+      renderEbooks();
+    });
     document.getElementById('saveBanners').addEventListener('click', async () => {
       const statusEl = document.getElementById('bannerStatus');
       statusEl.textContent = 'Saving…'; statusEl.className = 'status';
