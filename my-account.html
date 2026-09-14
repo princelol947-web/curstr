@@ -48,6 +48,19 @@
   .download-btn{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;font-weight:600;
                  padding:8px 14px;border-radius:6px;text-decoration:none;font-size:13px;white-space:nowrap;}
   .empty{text-align:center;color:var(--text-dim);padding:32px 0;font-size:14px;}
+  .coin-balance-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .coin-balance-amount{font-size:2rem;font-weight:800;color:#fb923c;line-height:1;}
+  .coin-balance-label{font-size:12px;color:var(--text-dim);margin-top:4px;}
+  .coin-tabs{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+  .coin-tab{flex:1;padding:9px;text-align:center;background:#0f0f0f;color:var(--text-muted);font-weight:600;font-size:13px;cursor:pointer;border:none;}
+  .coin-tab.active{background:linear-gradient(135deg,#f97316,#c2410c);color:#fff;}
+  .coin-history{max-height:260px;overflow-y:auto;}
+  .coin-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+  .coin-row:last-child{border-bottom:none;}
+  .coin-row .label{font-size:13px;}
+  .coin-row .date{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .coin-row .amount.earn{color:#4ade80;font-weight:700;}
+  .coin-row .amount.spend{color:#f87171;font-weight:700;}
   textarea{width:100%;padding:10px 12px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;
            color:var(--text);font-size:14px;font-family:inherit;min-height:90px;resize:vertical;}
 </style>
@@ -100,6 +113,22 @@
     <p class="status" id="bugStatus"></p>
   </div>
 
+  <h2>🔥 Blaze Coins</h2>
+  <div class="card">
+    <div class="coin-balance-row">
+      <div>
+        <div class="coin-balance-amount" id="coinBalanceAmount">0</div>
+        <div class="coin-balance-label">Blaze Coins · 100 coins = ₹1 off</div>
+      </div>
+    </div>
+    <div class="coin-tabs">
+      <button class="coin-tab active" id="tabEarnHistory">Earn history</button>
+      <button class="coin-tab" id="tabUseHistory">Use history</button>
+    </div>
+    <div id="earnHistoryList" class="coin-history"></div>
+    <div id="useHistoryList" class="coin-history" style="display:none;"></div>
+  </div>
+
   <h2>Your purchases</h2>
   <div id="orderList"></div>
 
@@ -144,6 +173,7 @@
       }
 
       loadOrders();
+      loadCoins();
     }
 
     // --- Avatar upload ---
@@ -216,6 +246,54 @@
     });
 
     // --- Purchases ---
+    async function loadCoins() {
+      const { data: coinRow } = await sb.from('user_coins').select('balance').eq('email', currentUser.email).maybeSingle();
+      document.getElementById('coinBalanceAmount').textContent = (coinRow && coinRow.balance) || 0;
+
+      const { data: history, error } = await sb
+        .from('coin_transactions')
+        .select('type, amount, ebook_title, created_at')
+        .order('created_at', { ascending: false });
+
+      const earnList = document.getElementById('earnHistoryList');
+      const useList = document.getElementById('useHistoryList');
+
+      if (error || !history) {
+        earnList.innerHTML = useList.innerHTML = '<p class="empty">Couldn\'t load history.</p>';
+        return;
+      }
+
+      const earns = history.filter(h => h.type === 'earn');
+      const spends = history.filter(h => h.type === 'spend');
+
+      earnList.innerHTML = earns.length ? earns.map(coinRowHTML('earn')).join('') : '<p class="empty">No coins earned yet — buy an ebook to start earning.</p>';
+      useList.innerHTML = spends.length ? spends.map(coinRowHTML('spend')).join('') : '<p class="empty">No coins used yet.</p>';
+    }
+
+    function coinRowHTML(kind) {
+      return (h) => `
+        <div class="coin-row">
+          <div>
+            <div class="label">${escHtml(h.ebook_title || (kind === 'earn' ? 'Coins earned' : 'Coins redeemed'))}</div>
+            <div class="date">${new Date(h.created_at).toLocaleDateString()}</div>
+          </div>
+          <div class="amount ${kind}">${kind === 'earn' ? '+' : '−'}${h.amount}</div>
+        </div>`;
+    }
+
+    document.getElementById('tabEarnHistory').addEventListener('click', () => {
+      document.getElementById('tabEarnHistory').classList.add('active');
+      document.getElementById('tabUseHistory').classList.remove('active');
+      document.getElementById('earnHistoryList').style.display = '';
+      document.getElementById('useHistoryList').style.display = 'none';
+    });
+    document.getElementById('tabUseHistory').addEventListener('click', () => {
+      document.getElementById('tabUseHistory').classList.add('active');
+      document.getElementById('tabEarnHistory').classList.remove('active');
+      document.getElementById('useHistoryList').style.display = '';
+      document.getElementById('earnHistoryList').style.display = 'none';
+    });
+
     async function loadOrders() {
       const { data: orders, error } = await sb
         .from('orders')
