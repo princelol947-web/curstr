@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In</title>
+<style>
+  :root{--bg:#0a0a0a;--bg-elevated:#171717;--border:#262626;--text:#f5f5f5;--text-muted:#a3a3a3;--accent:#ef4444;--accent-dark:#991b1b;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;
+       min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .wrap{width:100%;max-width:360px;}
+  .tabs{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:24px;}
+  .tab{flex:1;padding:10px;text-align:center;background:var(--bg-elevated);color:var(--text-muted);
+       font-weight:600;font-size:14px;cursor:pointer;border:none;}
+  .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;}
+  h1{font-size:1.3rem;margin:0 0 20px;}
+  input{width:100%;padding:10px 12px;margin-bottom:14px;background:var(--bg-elevated);
+        border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:15px;}
+  input:focus-visible{outline:2px solid var(--accent);}
+  button.primary{
+    width:100%;padding:10px;
+    background:linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color:#fff;font-weight:600;
+    border:none;border-radius:6px;font-size:15px;cursor:pointer;
+    box-shadow:0 4px 14px rgba(239,68,68,0.35);
+    transition:transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  }
+  button.primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(239,68,68,0.5);filter:brightness(1.08);}
+  button.primary:active{transform:translateY(0) scale(0.96);box-shadow:0 2px 8px rgba(239,68,68,0.4);filter:brightness(0.92);}
+  .error{color:#f87171;font-size:13px;margin-bottom:12px;}
+  .ok{color:#4ade80;font-size:13px;margin-bottom:12px;}
+  .switch-line{text-align:center;margin-top:14px;font-size:13px;color:var(--text-muted);}
+  .switch-line a{color:var(--accent);text-decoration:none;cursor:pointer;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tabs">
+    <button class="tab active" id="tabUser">User</button>
+    <button class="tab" id="tabAdmin">Admin</button>
+  </div>
+
+  <!-- USER PANEL -->
+  <div class="panel active" id="userPanel">
+    <h1 id="userHeading">Sign in</h1>
+    <p id="userError" class="error" style="display:none;"></p>
+    <p id="userOk" class="ok" style="display:none;"></p>
+    <form id="userForm">
+      <input type="email" id="userEmail" placeholder="Email" required />
+      <input type="password" id="userPassword" placeholder="Password" required minlength="6" />
+      <button type="submit" class="primary" id="userSubmitBtn">Sign in</button>
+    </form>
+    <p class="switch-line" id="userSwitchLine">New here? <a id="toSignUp">Create an account</a></p>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="panel" id="adminPanel">
+    <h1>Admin sign in</h1>
+    <p id="adminError" class="error" style="display:none;"></p>
+    <form id="adminForm">
+      <input type="email" id="adminEmail" placeholder="Admin email" required />
+      <input type="password" id="adminPassword" placeholder="Password" required />
+      <button type="submit" class="primary">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin-config.js?v=2"></script>
+<script>
+  const tabUser = document.getElementById('tabUser');
+  const tabAdmin = document.getElementById('tabAdmin');
+  const userPanel = document.getElementById('userPanel');
+  const adminPanel = document.getElementById('adminPanel');
+
+  tabUser.addEventListener('click', () => {
+    tabUser.classList.add('active'); tabAdmin.classList.remove('active');
+    userPanel.classList.add('active'); adminPanel.classList.remove('active');
+  });
+  tabAdmin.addEventListener('click', () => {
+    tabAdmin.classList.add('active'); tabUser.classList.remove('active');
+    adminPanel.classList.add('active'); userPanel.classList.remove('active');
+  });
+
+  if (typeof supabase === 'undefined') {
+    document.getElementById('userError').textContent = 'Could not load the login system. Check your internet connection.';
+    document.getElementById('userError').style.display = 'block';
+  } else if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON_KEY === 'undefined') {
+    document.getElementById('userError').textContent = 'Site configuration failed to load (admin-config.js missing or broken).';
+    document.getElementById('userError').style.display = 'block';
+  } else {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // --- USER: sign in / sign up toggle ---
+    let mode = 'signin';
+    const userHeading = document.getElementById('userHeading');
+    const userSubmitBtn = document.getElementById('userSubmitBtn');
+    const userSwitchLine = document.getElementById('userSwitchLine');
+    const userError = document.getElementById('userError');
+    const userOk = document.getElementById('userOk');
+
+    function setMode(newMode) {
+      mode = newMode;
+      userError.style.display = 'none';
+      userOk.style.display = 'none';
+      if (mode === 'signup') {
+        userHeading.textContent = 'Create your account';
+        userSubmitBtn.textContent = 'Sign up';
+        userSwitchLine.innerHTML = 'Already have an account? <a id="toSignIn">Sign in</a>';
+        document.getElementById('toSignIn').addEventListener('click', () => setMode('signin'));
+      } else {
+        userHeading.textContent = 'Sign in';
+        userSubmitBtn.textContent = 'Sign in';
+        userSwitchLine.innerHTML = 'New here? <a id="toSignUp">Create an account</a>';
+        document.getElementById('toSignUp').addEventListener('click', () => setMode('signup'));
+      }
+    }
+    document.getElementById('toSignUp').addEventListener('click', () => setMode('signup'));
+
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('userEmail').value.trim();
+      const password = document.getElementById('userPassword').value;
+      userError.style.display = 'none';
+      userOk.style.display = 'none';
+
+      try {
+        if (mode === 'signup') {
+          const { error } = await sb.auth.signUp({ email, password });
+          if (error) { userError.textContent = error.message; userError.style.display = 'block'; return; }
+          userOk.textContent = 'Account created! Check your email to confirm, then sign in.';
+          userOk.style.display = 'block';
+          setMode('signin');
+        } else {
+          const { error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) { userError.textContent = error.message; userError.style.display = 'block'; return; }
+          window.location.href = 'my-account.html';
+        }
+      } catch (err) {
+        userError.textContent = 'Unexpected error: ' + err.message;
+        userError.style.display = 'block';
+      }
+    });
+
+    // --- ADMIN: existing logic, unchanged ---
+    const adminError = document.getElementById('adminError');
+    document.getElementById('adminForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      adminError.style.display = 'none';
+
+      try {
+        const { error: signInErr } = await sb.auth.signInWithPassword({ email, password });
+        if (signInErr) { adminError.textContent = 'Sign-in failed: ' + signInErr.message; adminError.style.display = 'block'; return; }
+
+        const { data: perm, error: permErr } = await sb.from('admin_permissions').select('email').eq('email', email).maybeSingle();
+        if (permErr || !perm) {
+          adminError.textContent = 'This account is not authorized as admin or sub-admin.';
+          adminError.style.display = 'block';
+          await sb.auth.signOut();
+          return;
+        }
+        window.location.href = 'admin-dashboard.html';
+      } catch (err) {
+        adminError.textContent = 'Unexpected error: ' + err.message;
+        adminError.style.display = 'block';
+      }
+    });
+  }
+</script>
+</body></html>
