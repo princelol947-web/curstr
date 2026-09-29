@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account</title>
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style>
+  :root{--bg:#0a0a0a;--bg-elevated:#171717;--border:#262626;--text:#f5f5f5;--text-muted:#a3a3a3;--text-dim:#737373;--accent:#ef4444;--accent-dark:#991b1b;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);}
+  header a{color:var(--text-muted);text-decoration:none;font-size:14px;}
+  header .brand{display:flex;align-items:center;gap:12px;}
+  header .brand img{height:32px;width:32px;object-fit:contain;display:block;}
+  header .brand strong{color:var(--text);}
+  button.signout{background:none;border:1px solid var(--border);color:var(--text-muted);padding:6px 12px;border-radius:6px;font-size:13px;cursor:pointer;}
+  button.signout:hover{border-color:var(--accent);color:var(--accent);}
+  main{max-width:640px;margin:0 auto;padding:32px 20px 80px;}
+  h1{font-size:1.4rem;margin:0 0 4px;}
+  h2{font-size:1rem;color:var(--accent);margin:36px 0 14px;}
+  .sub{color:var(--text-muted);font-size:13px;margin:0 0 8px;}
+
+  .avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:8px;}
+  .avatar{width:72px;height:72px;border-radius:50%;background:var(--bg-elevated);border:2px solid var(--border);
+          object-fit:cover;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-size:24px;}
+  .avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+
+  .card{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px;}
+  .card label{display:block;font-size:12px;color:var(--text-muted);margin:10px 0 4px;}
+  .card label:first-child{margin-top:0;}
+  .card input{width:100%;padding:9px 12px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:14px;}
+  .card .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:12px;}
+  .card .checkbox-row input{width:auto;}
+  .card .checkbox-row label{margin:0;font-size:13px;color:var(--text);}
+
+  button.primary{margin-top:14px;padding:9px 16px;background:linear-gradient(135deg,var(--accent),var(--accent-dark));
+                 color:#fff;font-weight:600;border:none;border-radius:6px;font-size:14px;cursor:pointer;}
+  button.primary:hover{filter:brightness(1.08);}
+  button.danger{margin-top:10px;padding:9px 16px;background:none;border:1px solid #f87171;color:#f87171;
+                border-radius:6px;font-size:14px;cursor:pointer;}
+  button.danger:hover{background:rgba(248,113,113,0.1);}
+  button.secondary{margin-top:10px;padding:9px 16px;background:none;border:1px solid var(--border);color:var(--text-muted);
+                    border-radius:6px;font-size:14px;cursor:pointer;}
+  button.secondary:hover{border-color:var(--accent);color:var(--accent);}
+
+  .status{font-size:13px;margin-top:8px;min-height:16px;}
+  .status.ok{color:#4ade80;}
+  .status.err{color:#f87171;}
+
+  .order{background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;
+         display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .order h3{margin:0 0 4px;font-size:15px;}
+  .order p{margin:0;font-size:12px;color:var(--text-dim);}
+  .download-btn{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;font-weight:600;
+                 padding:8px 14px;border-radius:6px;text-decoration:none;font-size:13px;white-space:nowrap;}
+  .empty{text-align:center;color:var(--text-dim);padding:32px 0;font-size:14px;}
+  .coin-balance-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+  .coin-balance-amount{font-size:2rem;font-weight:800;color:#fb923c;line-height:1;}
+  .coin-balance-label{font-size:12px;color:var(--text-dim);margin-top:4px;}
+  .coin-tabs{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:14px;}
+  .coin-tab{flex:1;padding:9px;text-align:center;background:#0f0f0f;color:var(--text-muted);font-weight:600;font-size:13px;cursor:pointer;border:none;}
+  .coin-tab.active{background:linear-gradient(135deg,#f97316,#c2410c);color:#fff;}
+  .coin-history{max-height:260px;overflow-y:auto;}
+  .coin-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);}
+  .coin-row:last-child{border-bottom:none;}
+  .coin-row .label{font-size:13px;}
+  .coin-row .date{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .coin-row .amount.earn{color:#4ade80;font-weight:700;}
+  .coin-row .amount.spend{color:#f87171;font-weight:700;}
+  textarea{width:100%;padding:10px 12px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;
+           color:var(--text);font-size:14px;font-family:inherit;min-height:90px;resize:vertical;}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" class="brand" aria-label="Home"><img src="data:image/png;base64,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" alt="Curse Trading logo" width="32" height="32"><strong>My Account</strong></a>
+  <div><span id="userEmailLabel" style="color:var(--text-dim);font-size:13px;"></span> <button class="signout" id="signOut">Sign out</button></div>
+</header>
+
+<main>
+  <h1>Your profile</h1>
+  <div class="card">
+    <div class="avatar-row">
+      <div class="avatar" id="avatarBox">👤</div>
+      <div>
+        <input type="file" id="avatarInput" accept="image/*">
+        <p class="status" id="avatarStatus"></p>
+      </div>
+    </div>
+    <label>Display name</label>
+    <input id="nameInput" placeholder="Your name">
+    <button class="primary" id="saveNameBtn">Save name</button>
+    <p class="status" id="nameStatus"></p>
+  </div>
+
+  <h2>Change password</h2>
+  <div class="card">
+    <label>New password</label>
+    <input type="password" id="newPassword" minlength="6" placeholder="At least 6 characters">
+    <button class="primary" id="savePasswordBtn">Update password</button>
+    <p class="status" id="passwordStatus"></p>
+  </div>
+
+  <h2>Preferences</h2>
+  <div class="card">
+    <div class="checkbox-row">
+      <input type="checkbox" id="emailUpdates">
+      <label for="emailUpdates">Email me about new ebooks and sales</label>
+    </div>
+    <button class="primary" id="savePrefsBtn">Save preferences</button>
+    <p class="status" id="prefsStatus"></p>
+  </div>
+
+  <h2>Report a bug / Get help</h2>
+  <div class="card">
+    <label>What's going on?</label>
+    <textarea id="bugText" placeholder="Describe the issue or question…"></textarea>
+    <button class="primary" id="sendBugBtn">Send</button>
+    <p class="status" id="bugStatus"></p>
+  </div>
+
+  <h2>🔥 Blaze Coins</h2>
+  <div class="card">
+    <div class="coin-balance-row">
+      <div>
+        <div class="coin-balance-amount" id="coinBalanceAmount">0</div>
+        <div class="coin-balance-label">Blaze Coins · 100 coins = ₹1 off</div>
+      </div>
+    </div>
+    <div class="coin-tabs">
+      <button class="coin-tab active" id="tabEarnHistory">Earn history</button>
+      <button class="coin-tab" id="tabUseHistory">Use history</button>
+    </div>
+    <div id="earnHistoryList" class="coin-history"></div>
+    <div id="useHistoryList" class="coin-history" style="display:none;"></div>
+  </div>
+
+  <h2>Your purchases</h2>
+  <div id="orderList"></div>
+
+  <h2>Account</h2>
+  <div class="card">
+    <p class="sub">Deleting your account permanently removes your login and profile data. Because this needs a secure server-side step, tap below to send a deletion request — we'll confirm and remove it within a few days.</p>
+    <button class="danger" id="deleteBtn">Request account deletion</button>
+    <p class="status" id="deleteStatus"></p>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin-config.js?v=2"></script>
+<script>
+  if (typeof supabase === 'undefined' || typeof SUPABASE_URL === 'undefined') {
+    document.querySelector('main').innerHTML = '<p class="empty">Could not load — check your connection and reload.</p>';
+  } else {
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const ADMIN_CONTACT = typeof ADMIN_EMAIL !== 'undefined' ? ADMIN_EMAIL : '';
+
+    function escHtml(s) {
+      return (s == null ? '' : String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function setStatus(el, msg, ok) {
+      el.textContent = msg;
+      el.className = 'status ' + (ok ? 'ok' : 'err');
+    }
+
+    let currentUser = null;
+
+    async function init() {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) { window.location.href = 'login.html'; return; }
+      currentUser = session.user;
+      document.getElementById('userEmailLabel').textContent = currentUser.email;
+
+      const meta = currentUser.user_metadata || {};
+      document.getElementById('nameInput').value = meta.full_name || '';
+      document.getElementById('emailUpdates').checked = !!meta.email_updates;
+      if (meta.avatar_url) {
+        document.getElementById('avatarBox').innerHTML = `<img src="${escHtml(meta.avatar_url)}" alt="avatar">`;
+      }
+
+      loadOrders();
+      loadCoins();
+    }
+
+    // --- Avatar upload ---
+    document.getElementById('avatarInput').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const statusEl = document.getElementById('avatarStatus');
+      statusEl.textContent = 'Uploading…';
+      try {
+        const path = `${currentUser.id}-${Date.now()}`.replace(/[^a-zA-Z0-9\-_]/g, '_');
+        const { error: upErr } = await sb.storage.from('avatars').upload(path, file, { upsert: true });
+        if (upErr) throw upErr;
+        const { data } = sb.storage.from('avatars').getPublicUrl(path);
+        const { error: metaErr } = await sb.auth.updateUser({ data: { avatar_url: data.publicUrl } });
+        if (metaErr) throw metaErr;
+        document.getElementById('avatarBox').innerHTML = `<img src="${escHtml(data.publicUrl)}" alt="avatar">`;
+        statusEl.textContent = 'Updated ✓';
+      } catch (err) {
+        statusEl.textContent = 'Upload failed: ' + err.message;
+      }
+    });
+
+    // --- Display name ---
+    document.getElementById('saveNameBtn').addEventListener('click', async () => {
+      const statusEl = document.getElementById('nameStatus');
+      const name = document.getElementById('nameInput').value.trim();
+      const { error } = await sb.auth.updateUser({ data: { full_name: name } });
+      setStatus(statusEl, error ? 'Failed: ' + error.message : 'Saved ✓', !error);
+    });
+
+    // --- Password ---
+    document.getElementById('savePasswordBtn').addEventListener('click', async () => {
+      const statusEl = document.getElementById('passwordStatus');
+      const pw = document.getElementById('newPassword').value;
+      if (!pw || pw.length < 6) { setStatus(statusEl, 'Password must be at least 6 characters.', false); return; }
+      const { error } = await sb.auth.updateUser({ password: pw });
+      setStatus(statusEl, error ? 'Failed: ' + error.message : 'Password updated ✓', !error);
+      if (!error) document.getElementById('newPassword').value = '';
+    });
+
+    // --- Preferences ---
+    document.getElementById('savePrefsBtn').addEventListener('click', async () => {
+      const statusEl = document.getElementById('prefsStatus');
+      const checked = document.getElementById('emailUpdates').checked;
+      const { error } = await sb.auth.updateUser({ data: { email_updates: checked } });
+      setStatus(statusEl, error ? 'Failed: ' + error.message : 'Saved ✓', !error);
+    });
+
+    // --- Report a bug / help ---
+    document.getElementById('sendBugBtn').addEventListener('click', () => {
+      const text = document.getElementById('bugText').value.trim();
+      const statusEl = document.getElementById('bugStatus');
+      if (!text) { setStatus(statusEl, 'Write a quick description first.', false); return; }
+      if (!ADMIN_CONTACT) { setStatus(statusEl, 'Contact info not configured yet.', false); return; }
+      const subject = encodeURIComponent('Bug report / help — ' + currentUser.email);
+      const body = encodeURIComponent(`From: ${currentUser.email}\n\n${text}`);
+      window.location.href = `mailto:${ADMIN_CONTACT}?subject=${subject}&body=${body}`;
+      setStatus(statusEl, 'Opening your email app…', true);
+    });
+
+    // --- Delete account request ---
+    document.getElementById('deleteBtn').addEventListener('click', () => {
+      const statusEl = document.getElementById('deleteStatus');
+      if (!confirm('Send a request to permanently delete your account and data?')) return;
+      if (!ADMIN_CONTACT) { setStatus(statusEl, 'Contact info not configured yet.', false); return; }
+      const subject = encodeURIComponent('Account deletion request — ' + currentUser.email);
+      const body = encodeURIComponent(`Please permanently delete my account and associated data.\n\nEmail: ${currentUser.email}`);
+      window.location.href = `mailto:${ADMIN_CONTACT}?subject=${subject}&body=${body}`;
+      setStatus(statusEl, 'Opening your email app to send the request…', true);
+    });
+
+    // --- Purchases ---
+    async function loadCoins() {
+      const { data: coinRow } = await sb.from('user_coins').select('balance').eq('email', currentUser.email).maybeSingle();
+      document.getElementById('coinBalanceAmount').textContent = (coinRow && coinRow.balance) || 0;
+
+      const { data: history, error } = await sb
+        .from('coin_transactions')
+        .select('type, amount, ebook_title, created_at')
+        .order('created_at', { ascending: false });
+
+      const earnList = document.getElementById('earnHistoryList');
+      const useList = document.getElementById('useHistoryList');
+
+      if (error || !history) {
+        earnList.innerHTML = useList.innerHTML = '<p class="empty">Couldn\'t load history.</p>';
+        return;
+      }
+
+      const earns = history.filter(h => h.type === 'earn');
+      const spends = history.filter(h => h.type === 'spend');
+
+      earnList.innerHTML = earns.length ? earns.map(coinRowHTML('earn')).join('') : '<p class="empty">No coins earned yet — buy an ebook to start earning.</p>';
+      useList.innerHTML = spends.length ? spends.map(coinRowHTML('spend')).join('') : '<p class="empty">No coins used yet.</p>';
+    }
+
+    function coinRowHTML(kind) {
+      return (h) => `
+        <div class="coin-row">
+          <div>
+            <div class="label">${escHtml(h.ebook_title || (kind === 'earn' ? 'Coins earned' : 'Coins redeemed'))}</div>
+            <div class="date">${new Date(h.created_at).toLocaleDateString()}</div>
+          </div>
+          <div class="amount ${kind}">${kind === 'earn' ? '+' : '−'}${h.amount}</div>
+        </div>`;
+    }
+
+    document.getElementById('tabEarnHistory').addEventListener('click', () => {
+      document.getElementById('tabEarnHistory').classList.add('active');
+      document.getElementById('tabUseHistory').classList.remove('active');
+      document.getElementById('earnHistoryList').style.display = '';
+      document.getElementById('useHistoryList').style.display = 'none';
+    });
+    document.getElementById('tabUseHistory').addEventListener('click', () => {
+      document.getElementById('tabUseHistory').classList.add('active');
+      document.getElementById('tabEarnHistory').classList.remove('active');
+      document.getElementById('useHistoryList').style.display = '';
+      document.getElementById('earnHistoryList').style.display = 'none';
+    });
+
+    async function loadOrders() {
+      const { data: orders, error } = await sb
+        .from('orders')
+        .select('ebook_title, created_at, status')
+        .eq('status', 'paid')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        document.getElementById('orderList').innerHTML = `<p class="empty">Couldn't load your purchases: ${escHtml(error.message)}</p>`;
+        return;
+      }
+
+      let ebooksByTitle = {};
+      const { data: contentRow } = await sb.from('site_content').select('value').eq('key', 'ebooks').maybeSingle();
+      if (contentRow && contentRow.value) {
+        contentRow.value.forEach(b => { ebooksByTitle[b.title] = b.file_path; });
+      }
+
+      if (!orders || orders.length === 0) {
+        document.getElementById('orderList').innerHTML = '<p class="empty">No purchases yet — browse the <a href="ebooks.html" style="color:var(--accent);">Ebooks page</a> to get started.</p>';
+        return;
+      }
+
+      document.getElementById('orderList').innerHTML = orders.map(o => `
+        <div class="order">
+          <div>
+            <h3>${escHtml(o.ebook_title)}</h3>
+            <p>Purchased ${new Date(o.created_at).toLocaleDateString()}</p>
+          </div>
+          ${ebooksByTitle[o.ebook_title] ? `<a class="download-btn" href="${escHtml(ebooksByTitle[o.ebook_title])}">Download</a>` : `<span style="font-size:12px;color:var(--text-dim);">Link unavailable</span>`}
+        </div>
+      `).join('');
+    }
+
+    document.getElementById('signOut').addEventListener('click', async () => {
+      await sb.auth.signOut();
+      window.location.href = 'login.html';
+    });
+
+    init();
+  }
+</script>
+</body></html>

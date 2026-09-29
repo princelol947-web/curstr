@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In</title>
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAYAAACqaXHeAAAO4UlEQVR42u2ba4xdV3XHf2vvc+7MnbkTe+J47NgeG7/GGTs2TUhwTOzESZM4gYRQEUrVii+tBJUqoYKEilDVoooPrSh8qGhpVZBAVaVCyzuBhAYS8iohxBCwPXE8fsz7ced93+ecvVc/3HPHY2MnsucRoN3SaK50ju6+/7X/ez3+e23h0kPSPw/Q3Nx8yFr7LlW9Q1X3iMg1gKbv/DoMBURV50TkuIg845x7rFqtPps+N+k7eimgFw+zAPj7jTF/BhwUEVFVfhOGiKD1H/uc9/4fq9XqVy7GdjkDWMBls9kNwBeNMfcDpMBd+r75Ncfv05W2InV43vvHgT+pVCrDDYyXMkAD/K3At4wx16uqW/DsN3G4lBHWez8CPFypVF5aaARZSI1sNvt24HFjTLuqJkDAb8dIRCTw3k8D91cqlZ80MM9TuqWlpUNVXxGRjtQ6lt+u4QCrquMi8tZyuTzeWHkBvKp+2RjTASQrAf5NCB8WSIwxHar65dRXiAFcLpd7RETuWynaS7ocbuWNEKhqIiL35XK5RwBnAPHef0xEViSuG6AqQrdX/qYWUV35sCIiot77jwEiuVzukPf+hylFZCV4WBDhm9UqtzvHXU1N9AQBWdULA/TyJ07OGHO3cc69W0SCixOEpV51m+6tggjviWMedo488EgUkVMlSROYRuxe7lxBRALn3LttJpP5JNC5HL7JNCif0t4DG1X5ShSxChgGSkBWlVeCAJMkxHGMMQZjLSxv5ikiggH2Lfi9S+bkbAquAGzzng9GMS0KtznPGlUECIEasN0rbVFMe8d6du7aTRAEVCtlvHpEzHKREmBfAOSW+ptdCv4W5/lwEvNe52gBnreG/wwDDnjHR5Jkvjr596YmpqMq29ddz11HHmJ4cIDTp3roOfEKpWKBpqZmlqkOyZlLVUiLcXAVgUDhM1HEi7UqH3AOAZ4DCpfYYQIoitiAqekp+gcGyLVdw4GDd/N7j3yAXd17iaLafJGz1M7QhmH4ySXz7sAOr3yrVuMR75gCngT+xVo+n8kwag01ER5wjtu8Jw/0AS8GATPWUisVGBocYHpmFuc87WvWsOuGvTQ3ZxnoP4uqYsySbgkJlgp8UYR9zvForUanKi8B/2Es3whD+q0BEVpSGpuL4tH8Z1XmZvIUZicZG+5ny7Zd7NzZxVtvfjvN2Rae+u9H8d4vKROCpdjzVWCz83wzBf848A9hyA/CEBUhq3qBR5fXq8dtMG+Ik8eLFAuzdO/eS9cNe4hqVZ556nHCMLNkPiFYrLf3KQO+FNXYqsoTwKcyGZ4PQ1pVkQUJjr2MAeQiFjQMEUdV+s++Spw4VJU9e29mcmKcX77yU5qasqj6N9cAJk1s/rJW47D3vAj8fRjyfBjSpoq7jIf9FQPovDe8wBBiLN45Rgd6yYQZsi1Zbtl/kOGhfmampwiCYNFMMIulfpdz/EWSkAe+aC1PZzLkUvCX9Rnpj35DeSl1ekkSMzJ4mtO9p7FByE23HED90iSuZjH0j0X4cByTAx4T4RuZkCBNcq5kUnldGyihtVTKBYaHzjE0OMS27V10rN9AHMeLdojmasFXgU3e84fOMQp83VpKYlGg+AZ7y6SQ9Q2SEFkQXo0YilPjDA0N4Jyyo2s33rs3hwE2Xf0jztGeJjkvBgHXqPLxKKZbPXMi8wAuN2nDAOYyc/jUxxxOHA8mnkpUZWpijInJCTq3bCWbbcUvcitclQEaq/aAc3jgBWOZM4YJI/wY5QeVKh+JIpJ09YLXCX31SlFRZD4i1KvG+vNPRxF/Wqvyg9DgFUqFGfL5PLncNVy75jqcSxa1DczV0D8B2rznbWk212MNkQg573lmw0Y+EYZ8No55slLlkHPMiVwgMprLhMGGVDsnwp2J48fVKnfHMX+1tgPbsR7jHFFUZW52Bucca9auwzu/qCL2qgwQARtU2ahKHzAkBitCOaqx+7p1PLvvZj4BHET5Ya3GZ2o1WlSZEbB6Pn9o/G/oBbMCLap8plbjh7Ua1nv+OAzZdPudBNUq3ggujqmUS1RrEe3t16bYdWW3gBPhOlVCYByYNYKoYoOQwcE+Du8/yL9dv5EvqmJF+GiS8Fy1ykOxwwk0o5iUSbl01SPgwbj+3keThJ+J8HEgd/ge1ufaGM+PkwkyOO+Iohq1Wo1stnXlnWCDbG3p/zmEiLoBgqBe0VWLc9z57kf4dDbLE6pUROhW5dtRjc/WIr5gA3pE2Ax8z1rmRPjnao3vRBHdqrwgwpdUeXVnFwcP3EHPiWMoKXVUcS4mjmOCMFi0XnDlBlggW+kCKqcP8d5x5swpdmzczPp73snfifAyUE5f+UgS89dJzN8GAR/KZChby5O1Gh9ydX3gGRGeVuWJa9dw+IGHKRUK9PefIwzDBVmfoN6jvh5HVswJGmOI4xh1joqpR/MMSlhfn/nMbXRkkNnCLLftu5mp/bfzBVWOiaGa0v0d3vO5OOaPEsfXoohtaeb4NPBL4L8yIbvuf4j1166hf6CPYmEOa+s5BgLWWEQE52JAiON4/vctmwFUlSAI2b33JlqbmjlZqzJoDFuAVlW8CKTvTEzkKRTmiJOYe+46wvM7unhUPT8XIUlZ0wY87N38SebTwGlj+I4qmTvvZe+2nRTLFQb6zqUJT/37RQw2CGlqbmZudpY4jlnbsY7tO7uvKicwV7L6pVKRUqXEH7zvA7TdcCMHgO8hbNbzkrIxhkq5xPjYMMZYijNT3Pue9/PVtR0cVeXlNCRq6gQN8BRwRoQXvKf/5lu5/aZbyU/mqZQrjA4PYtOVbSxCtqWVl198hpd+/Cy3vP0dHDj0uwwP9eOcgyvcDlekCAVByNjIEIn3PPjge0naV/PVsRHylRIahunkQhLHNDe30H3jW/nZ0Z8wcq6Xrbcd4rnTp+iu1SgCm9LQ9xTwmgjDqjy2dTv7bz/M099/lOs3dDI1Pcurx38OadkrIlgbMJEfoVIucM8DD7Nl2y6+/92vMzczRRhmrlhJvkJJTMk0NTE02EehWOLgO+6ka+cNjFcqTI2Pgio2CFCveOfo6r6R1avaeezRr1GdnqK6qZORyTy7nWMWOJvu+QT411WrWL19J//z1BPYMORt+w/yys+Pkh8dqDteY/BJQhTV2NnVzQMPvY8g08xj3/oKM9MTZK5SOL1iTVBVCcMM46NDFEoVtm7fyZ49e1ndvoax0aFUxW2iWq2wecs21l+/iZnpSXp6juFLBY5bS4vzbFFPL9AMfD6T4UyYYXZogEKpyB2H78OGTRz7xVHKxVmMtdQqFdpWrebQXfdz6/6DTE1P89ST32VmYoxMpumqxZGrFkWNMUxNjlONHde2t7Opcwtbt3dRLBbIj4+SJDHXrV1H55ZteO/pPXkMEYOo8qq1rFHPjar8U5jhaBjS7B2xc7S1XcOBQ3fTPzjEYN9pKqU5vPfcsGcfh+95kI0bO+kfGOCnP3mB/Gg/QRAuShS5elVYBHUJxcIckYPW1lZWr25n+85uWlpa6D93hjiO6OrezarV1+KdY7DvDFEY8MEkYRXwuSCky3tiYxhVJRTh8L3vZNXq6zh16jWG+k+Ry7Vxx11H+J2bbyMMA/r6+unpOcbo4OklEUcXJYuLMUS1KkkcUak5WltbyGazrN+wmc1btvLaq8doW7WKtWvXseUtOwhEODvYz51e+VQSUwL2OMePrKXc3Mz99z/Mru69DA4McO5sLx1rr+Ouex9k3fqNJElEX18fZ8+dYWSglySOkCWQyBd9LiAiVMpFbJChWKrQ2pKlubmZa1a1s3XHLopzsykDEjo738LLp3rYOzvLu1A2qXJChGedo2P3Pm7bf5BSsch4fpzOTZ3s2XsTNgiI45iz584xMjrK2NAZysU5TBAsydnhkp0y5EfOUSrOcfz4CcbHxkA9LS05tu3orsdnhCSu1+6NSQucP5NXVZI4xjlH56ZO1q2/Huc9zjl6e08xOTnF9MQwczOT2CUCv2QGEGNwScLoYC+VSonjJ3roHxzAWqkLFqnk29izCzuzZN4AHu99veOx3udHkiScPHmS6ZlZpiZGyI8Ozp8b/NocjDTUWzGWWrXCwJkTrFm7gZ4eRxInbN26tQ5M0/LpItF04WeviveOIAip1ar09p5hajJPfrSf2ZlJrF361qUl7AdSRCyqyvhoP6XSHLVqmTiO2bFjRwrQX6ABLhRFNd0G1ljKpTKvnXqN8bEh8iP9xFFtSWm/TAY4r8xYG1AqzFItF6mWi7TmcmzauBGfJKlQeuG5gKQsIq35+/r7ONN7nLnpfFr8BMt1PL48/UmqirEW7x2F2UmGhoZSR8glDkelsYuwxlCuVJicylOcncKkZe9y9igvX4OW1nVe9Y6pyTwzMzNYa+rGuUhdnneK1jA1OUW5VExBL3+/0PJ2qImQJBGVcpmRkdHXnVSMEEUR09PT1Col1HtWol9qmVv0BFWYnRplPD9OqVxOVRu90GuoYq1lbq5IPj/GzNQ4xlpWoj1/SVtkLuUU6wJJgaH+XvL5ibq4oefBC+c1jOHhYUYGevEuYYWaaTVY7plUFWsD5qbHOXXyOInzmFQ+qxuhHvoKxRLFiVeIapUlbYB4I4oG6VlmbrmNYIyl/8xJKsYQWAtJMu8swyBgbGSQTBIvury9wlE0wC8aidjy+sO6ZI6LaUIuiAABkCQxK3ghp4H1F0ZVX0hz9BWaX5iS80lQBZgWIVjZBnpN84sXjLX222mb/LI3bTugWZUvBQF9InQATwYhA9aSaZwtrMwwqppYa79tisXic8DRlAXL2sKv1Ntj88bwyTBkAOHJMKBZVxS8S7EeLRaLz1mApqamGVX9fc4f1i6rEQLglDH8yFjyxmBXbv819r81xvx5FEUnGk0cLpvNPmGMuW8lL0vVUlV4BcE3Lk99v1KpHAHsm3ppyix36PlVF3TJS1MeoFwujwIPqeq0iFjq5xUrEotWaOWtqk4DD6VYAbxZuC/S+3RHvPcj6S2SN+lu05KuuktpPwIcSTE2erAucHguNcJLwC3e+8dFxKZsaDz3vwGgPQtujKa3Rh8Hbrn41ij8/+Xpy6Zf/2euz/8vuaK99+it+rIAAAAASUVORK5CYII=">
+<style>
+  :root{--bg:#0a0a0a;--bg-elevated:#171717;--border:#262626;--text:#f5f5f5;--text-muted:#a3a3a3;--accent:#ef4444;--accent-dark:#991b1b;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;
+       min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .wrap{width:100%;max-width:360px;}
+  .brand{display:flex;justify-content:center;margin-bottom:20px;}
+  .brand img{height:72px;width:72px;object-fit:contain;display:block;}
+  .tabs{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:24px;}
+  .tab{flex:1;padding:10px;text-align:center;background:var(--bg-elevated);color:var(--text-muted);
+       font-weight:600;font-size:14px;cursor:pointer;border:none;}
+  .tab.active{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;}
+  h1{font-size:1.3rem;margin:0 0 20px;}
+  input{width:100%;padding:10px 12px;margin-bottom:14px;background:var(--bg-elevated);
+        border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:15px;}
+  input:focus-visible{outline:2px solid var(--accent);}
+  button.primary{
+    width:100%;padding:10px;
+    background:linear-gradient(135deg, var(--accent), var(--accent-dark));
+    color:#fff;font-weight:600;
+    border:none;border-radius:6px;font-size:15px;cursor:pointer;
+    box-shadow:0 4px 14px rgba(239,68,68,0.35);
+    transition:transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+  }
+  button.primary:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(239,68,68,0.5);filter:brightness(1.08);}
+  button.primary:active{transform:translateY(0) scale(0.96);box-shadow:0 2px 8px rgba(239,68,68,0.4);filter:brightness(0.92);}
+  .error{color:#f87171;font-size:13px;margin-bottom:12px;}
+  .ok{color:#4ade80;font-size:13px;margin-bottom:12px;}
+  .switch-line{text-align:center;margin-top:14px;font-size:13px;color:var(--text-muted);}
+  .google-btn{width:100%;padding:10px;background:#fff;color:#1f1f1f;font-weight:600;font-size:14px;
+              border:1px solid var(--border);border-radius:6px;cursor:pointer;display:flex;align-items:center;
+              justify-content:center;gap:10px;margin-bottom:16px;}
+  .google-btn:hover{background:#f2f2f2;}
+  .or-divider{display:flex;align-items:center;text-align:center;color:var(--text-dim);font-size:12px;margin-bottom:16px;}
+  .or-divider::before,.or-divider::after{content:"";flex:1;border-bottom:1px solid var(--border);}
+  .or-divider span{padding:0 12px;}
+  .switch-line a{color:var(--accent);text-decoration:none;cursor:pointer;}
+  .panel{display:none;}
+  .panel.active{display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index.html" class="brand" aria-label="Home"><img src="data:image/png;base64,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" alt="Curse Trading logo" width="72" height="72"></a>
+  <div class="tabs">
+    <button class="tab active" id="tabUser">User</button>
+    <button class="tab" id="tabAdmin">Admin</button>
+  </div>
+
+  <!-- USER PANEL -->
+  <div class="panel active" id="userPanel">
+    <h1 id="userHeading">Sign in</h1>
+    <p id="userError" class="error" style="display:none;"></p>
+    <p id="userOk" class="ok" style="display:none;"></p>
+    <button type="button" class="google-btn" id="googleBtn">
+      <svg viewBox="0 0 48 48" width="18" height="18"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l6-6C34.5 5.5 29.5 3.5 24 3.5 12.7 3.5 3.5 12.7 3.5 24S12.7 44.5 24 44.5 44.5 35.3 44.5 24c0-1.2-.1-2.4-.3-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.5 16 18.9 13 24 13c3.1 0 5.8 1.1 8 3l6-6C34.5 6.5 29.5 4.5 24 4.5c-7.9 0-14.6 4.5-18 11z" transform="translate(0 -1)"/><path fill="#4CAF50" d="M24 44.5c5.4 0 10.3-1.9 14.1-5.1l-6.5-5.5C29.6 35.6 27 36.5 24 36.5c-5.3 0-9.7-3.1-11.3-7.4l-6.5 5C9.4 40 16.1 44.5 24 44.5z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.4 4.4-4.4 5.9l6.5 5.5C40.9 36.5 43.5 30.7 43.5 24c0-1.2-.1-2.4-.3-3.5z"/></svg>
+      Continue with Google
+    </button>
+    <div class="or-divider"><span>or</span></div>
+    <form id="userForm">
+      <input type="email" id="userEmail" placeholder="Email" required />
+      <input type="password" id="userPassword" placeholder="Password" required minlength="6" />
+      <button type="submit" class="primary" id="userSubmitBtn">Sign in</button>
+    </form>
+    <p class="switch-line" id="userSwitchLine">New here? <a id="toSignUp">Create an account</a></p>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="panel" id="adminPanel">
+    <h1>Admin sign in</h1>
+    <p id="adminError" class="error" style="display:none;"></p>
+    <form id="adminForm">
+      <input type="email" id="adminEmail" placeholder="Admin email" required />
+      <input type="password" id="adminPassword" placeholder="Password" required />
+      <button type="submit" class="primary">Sign in</button>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin-config.js?v=2"></script>
+<script>
+  const tabUser = document.getElementById('tabUser');
+  const tabAdmin = document.getElementById('tabAdmin');
+  const userPanel = document.getElementById('userPanel');
+  const adminPanel = document.getElementById('adminPanel');
+
+  tabUser.addEventListener('click', () => {
+    tabUser.classList.add('active'); tabAdmin.classList.remove('active');
+    userPanel.classList.add('active'); adminPanel.classList.remove('active');
+  });
+  tabAdmin.addEventListener('click', () => {
+    tabAdmin.classList.add('active'); tabUser.classList.remove('active');
+    adminPanel.classList.add('active'); userPanel.classList.remove('active');
+  });
+
+  if (typeof supabase === 'undefined') {
+    document.getElementById('userError').textContent = 'Could not load the login system. Check your internet connection.';
+    document.getElementById('userError').style.display = 'block';
+  } else if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON_KEY === 'undefined') {
+    document.getElementById('userError').textContent = 'Site configuration failed to load (admin-config.js missing or broken).';
+    document.getElementById('userError').style.display = 'block';
+  } else {
+    let sb;
+    try {
+      sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } catch (err) {
+      document.getElementById('userError').textContent = 'Could not connect to the login system: ' + err.message;
+      document.getElementById('userError').style.display = 'block';
+      document.getElementById('adminError').textContent = 'Could not connect to the login system: ' + err.message;
+      document.getElementById('adminError').style.display = 'block';
+    }
+
+    if (sb) {
+    document.getElementById('googleBtn').addEventListener('click', async () => {
+      const userError = document.getElementById('userError');
+      try {
+        const { error } = await sb.auth.signInWithOAuth({
+          provider: 'google',
+          options: { redirectTo: window.location.origin + window.location.pathname.replace('login.html', 'my-account.html') }
+        });
+        if (error) { userError.textContent = error.message; userError.style.display = 'block'; }
+      } catch (err) {
+        userError.textContent = 'Unexpected error: ' + err.message;
+        userError.style.display = 'block';
+      }
+    });
+
+    // --- USER: sign in / sign up toggle ---
+    let mode = 'signin';
+    const userHeading = document.getElementById('userHeading');
+    const userSubmitBtn = document.getElementById('userSubmitBtn');
+    const userSwitchLine = document.getElementById('userSwitchLine');
+    const userError = document.getElementById('userError');
+    const userOk = document.getElementById('userOk');
+
+    function setMode(newMode) {
+      mode = newMode;
+      userError.style.display = 'none';
+      userOk.style.display = 'none';
+      if (mode === 'signup') {
+        userHeading.textContent = 'Create your account';
+        userSubmitBtn.textContent = 'Sign up';
+        userSwitchLine.innerHTML = 'Already have an account? <a id="toSignIn">Sign in</a>';
+        document.getElementById('toSignIn').addEventListener('click', () => setMode('signin'));
+      } else {
+        userHeading.textContent = 'Sign in';
+        userSubmitBtn.textContent = 'Sign in';
+        userSwitchLine.innerHTML = 'New here? <a id="toSignUp">Create an account</a>';
+        document.getElementById('toSignUp').addEventListener('click', () => setMode('signup'));
+      }
+    }
+    document.getElementById('toSignUp').addEventListener('click', () => setMode('signup'));
+
+    document.getElementById('userForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('userEmail').value.trim();
+      const password = document.getElementById('userPassword').value;
+      userError.style.display = 'none';
+      userOk.style.display = 'none';
+
+      try {
+        if (mode === 'signup') {
+          const { error } = await sb.auth.signUp({ email, password });
+          if (error) { userError.textContent = error.message; userError.style.display = 'block'; return; }
+          userOk.textContent = 'Account created! Check your email to confirm, then sign in.';
+          userOk.style.display = 'block';
+          setMode('signin');
+        } else {
+          const { error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) { userError.textContent = error.message; userError.style.display = 'block'; return; }
+          window.location.href = 'my-account.html';
+        }
+      } catch (err) {
+        userError.textContent = 'Unexpected error: ' + err.message;
+        userError.style.display = 'block';
+      }
+    });
+
+    // --- ADMIN: existing logic, unchanged ---
+    const adminError = document.getElementById('adminError');
+    document.getElementById('adminForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      adminError.style.display = 'none';
+
+      try {
+        const { error: signInErr } = await sb.auth.signInWithPassword({ email, password });
+        if (signInErr) { adminError.textContent = 'Sign-in failed: ' + signInErr.message; adminError.style.display = 'block'; return; }
+
+        const { data: perm, error: permErr } = await sb.from('admin_permissions').select('email').eq('email', email).maybeSingle();
+        if (permErr || !perm) {
+          adminError.textContent = 'This account is not authorized as admin or sub-admin.';
+          adminError.style.display = 'block';
+          await sb.auth.signOut();
+          return;
+        }
+        window.location.href = 'admin-dashboard.html';
+      } catch (err) {
+        adminError.textContent = 'Unexpected error: ' + err.message;
+        adminError.style.display = 'block';
+      }
+    });
+    }
+  }
+</script>
+</body></html>
