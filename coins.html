@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0a0a0a">
+<title>Blaze Coins | Curse Trading</title>
+<style>
+  :root{--bg:#0a0a0a;--card:#171717;--border:#262626;--text:#f5f5f5;--muted:#a3a3a3;--accent:#ef4444;--gold:#f5d36b}
+  *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border)}
+  header a.back{color:var(--text);text-decoration:none;font-size:22px;line-height:1}
+  header h1{font-size:18px;margin:0;flex:1}
+  .bal{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--gold)}
+  main{max-width:560px;margin:0 auto;padding:20px 16px 60px}
+  .tier{font-size:38px;font-weight:700;margin:6px 0 2px}.muted{color:var(--muted);font-size:14px}
+  .bar{height:10px;border-radius:99px;background:var(--border);overflow:hidden;margin:16px 0 8px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,#b57a1c,#f7cf62);transition:width .5s}
+  .tabs{display:flex;border-bottom:1px solid var(--border);margin:24px 0 16px}
+  .tabs button{flex:1;background:none;border:0;color:var(--muted);padding:12px;font:600 15px inherit;font-family:inherit;cursor:pointer;border-bottom:3px solid transparent}
+  .tabs button.on{color:var(--text);border-color:var(--accent)}
+  .row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+  .row div{flex:1}.row b{display:block;font-size:15px}
+  button.go{background:linear-gradient(135deg,var(--accent),#991b1b);color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer}
+  button.go:disabled{background:#2a2a2a;color:#777;cursor:not-allowed}
+  .prize{background:linear-gradient(135deg,#2a1f08,#171717);border-color:#4a3a14}
+  h3{margin:20px 0 10px;font-size:16px}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#222;border:1px solid #444;padding:10px 16px;border-radius:10px;font-size:14px;opacity:0;pointer-events:none;transition:.3s}
+  #toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="index.html" aria-label="Back">←</a><h1>Blaze Coins</h1>
+  <div class="bal"><span id="ico"></span><span id="bal">0</span></div>
+</header>
+<main>
+  <div class="muted" id="guest" style="display:none;margin-bottom:8px">Sign in so your coins are saved to your account.</div>
+  <div class="tier" id="tier"></div>
+  <div class="muted" id="rate"></div>
+  <div class="bar"><i id="fill"></i></div>
+  <div class="muted" id="left"></div>
+  <div class="tabs" id="tabs"><button data-t="earn" class="on">Earn</button><button data-t="use">Use</button><button data-t="perks">Perks</button></div>
+  <div id="body"></div>
+</main>
+<div id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="admin-config.js?v=2"></script>
+<script src="blaze-config.js"></script>
+<script src="blaze-coins.js"></script>
+<script>
+  const B = BlazeCoins, C = B.cfg; let tab = 'earn';
+  document.getElementById('ico').innerHTML = B.icon(26);
+  const $ = id => document.getElementById(id);
+  function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+  const row = (t, s, btn) => `<div class="row"><div><b>${t}</b><span class="muted">${s}</span></div>${btn||''}</div>`;
+
+  function draw(s, t) {
+    $('bal').textContent = B.fmt(s.balance);
+    $('tier').textContent = t.cur.name;
+    $('rate').textContent = `Earning ${t.cur.rate} coins per ${C.currency}${C.perUnit} spent`;
+    $('fill').style.width = t.pct + '%';
+    $('left').textContent = t.nx ? `${B.fmt(t.left)} coins to ${t.nx.name}` : 'You are at the top tier';
+    $('guest').style.display = B.signedIn() ? 'none' : 'block';
+    let h = '';
+    if (tab === 'earn') {
+      h = row('Buy an ebook', `${t.cur.rate} coins for every ${C.currency}${C.perUnit} you spend`) +
+          row('Claim your weekly prize', 'Open the Perks tab');
+      if (C.demoButtons) h += row('Test: simulate a ' + C.currency + '500 purchase', 'For testing only', '<button class="go" data-a="demo">Add</button>');
+    } else if (tab === 'use') {
+      h = C.redeem.map(r => row(r.title, r.cost + ' coins', `<button class="go" data-a="use" data-id="${r.id}" ${s.balance < r.cost ? 'disabled' : ''}>Redeem</button>`)).join('');
+    } else {
+      h = '<h3>' + t.cur.name + ' perks</h3>' + t.cur.perks.map(p => row(p, '')).join('') +
+          '<h3>Weekly prize</h3>' + `<div class="row prize"><div><b>Next ${t.cur.name} prize</b><span class="muted">Available on ${new Date(s.next_prize).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} · ${t.cur.prize} coins</span></div><button class="go" data-a="claim" ${B.prizeReady() ? '' : 'disabled'}>Claim</button></div>`;
+    }
+    $('body').innerHTML = h;
+  }
+  B.on(draw);
+  $('tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return;
+    tab = b.dataset.t; [...$('tabs').children].forEach(x => x.classList.toggle('on', x === b)); draw(B.get(), B.info()); };
+  $('body').onclick = e => { const b = e.target.closest('button[data-a]'); if (!b) return;
+    if (b.dataset.a === 'demo') toast('+' + B.earn(500) + ' coins added');
+    if (b.dataset.a === 'claim') toast('+' + B.claimPrize() + ' coins claimed!');
+    if (b.dataset.a === 'use') { const r = C.redeem.find(x => x.id === b.dataset.id);
+      if (B.spend(r.cost)) toast('Redeemed! Code: BLAZE-' + Math.random().toString(36).slice(2, 8).toUpperCase()); } };
+</script>
+</body>
+</html>
