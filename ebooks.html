@@ -96,6 +96,8 @@
   footer a { color:inherit; text-decoration:none; }
   footer a:hover { color:var(--text-muted); }
 </style>
+<script src="theme.js"></script>
+<script src="orbs.js"></script>
 </head>
 <body>
 
@@ -167,7 +169,7 @@
             ${hasSale ? `<div class="price-row sale"><span>Seasonal sale</span><span>−${escHtml(discountText(b.price, b.sale_price))}</span></div>` : ''}
             <div class="price-row total"><span>Total</span><span>${escHtml(hasSale ? b.sale_price : b.price)}</span></div>
           </div>
-          <a class="buy-btn${soldOut ? ' disabled' : ''}" href="${soldOut ? '#' : safeUrl(b.payment_link)}">${soldOut ? 'Sold out' : 'Buy now'}</a>
+          <a class="buy-btn${soldOut ? ' disabled' : ''}" href="${soldOut ? '#' : safeUrl(b.payment_link)}"${soldOut ? '' : ` data-buy="${escHtml(b.title)}"`}>${soldOut ? 'Sold out' : 'Buy now'}</a>
         </div>
       </div>`;
     overlay.addEventListener('click', () => overlay.remove());
@@ -230,7 +232,7 @@
         ${b.subtitle ? `<p class="subtitle">${escHtml(b.subtitle)}</p>` : ''}
         ${b.description ? `<p class="desc">${escHtml(b.description)}</p>` : ''}
         <p class="price">${hasSale ? `<span class="strike">${escHtml(b.price)}</span> ${escHtml(b.sale_price)}` : escHtml(b.price)}</p>
-        <a class="buy-btn${soldOut ? ' disabled' : ''}" href="${soldOut ? '#' : safeUrl(b.payment_link)}">${soldOut ? 'Sold out' : 'Buy now'}</a>
+        <a class="buy-btn${soldOut ? ' disabled' : ''}" href="${soldOut ? '#' : safeUrl(b.payment_link)}"${soldOut ? '' : ` data-buy="${escHtml(b.title)}"`}>${soldOut ? 'Sold out' : 'Buy now'}</a>
       </div>
     `;
     }).join('');
@@ -258,6 +260,7 @@
   }, 1000);
 
   async function loadEbooks() {
+    if (window.orbBlock) document.getElementById('grid').innerHTML = orbBlock('searching', 'Loading ebooks…');
     let ebooks = FALLBACK_EBOOKS;
     let sb;
     if (typeof supabase !== 'undefined') {
@@ -296,5 +299,8 @@
   loadEbooks();
 </script>
 <script src="chatbot.js"></script>
+<script src="blaze-config.js"></script>
+<script src="blaze-coins.js"></script>
+<script src="checkout.js"></script>
 </body>
 </html>
