@@ -145,8 +145,8 @@
 
           <label>Description</label><textarea data-field="description">${esc(e.description)}</textarea>
 
-          <label>Ebook file (PDF/EPUB)</label>
-          <input type="file" accept=".pdf,.epub" data-file-input="ebook" data-index="${i}">
+          <label>Ebook file (PDF only)</label>
+          <input type="file" accept=".pdf,application/pdf" data-file-input="ebook" data-index="${i}">
           <div class="file-status" data-file-status="ebook-${i}">${hasFile ? '📄 File uploaded — pick a new one to replace it' : 'No file uploaded yet'}</div>
           <input type="hidden" data-field="file_path" value="${esc(e.file_path)}">
 
@@ -235,10 +235,11 @@
           const statusEl = document.querySelector(`[data-file-status="ebook-${idx}"]`);
           const file = inp.files[0];
           if (!file) return;
+          if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') { statusEl.textContent = 'Please choose a PDF file.'; inp.value = ''; return; }
           statusEl.textContent = 'Uploading…';
           try {
             const url = await uploadToStorage('ebook-files', file);
-            document.querySelector(`[data-index="${idx}"] input[data-field="file_path"]`).value = url;
+            inp.closest('.card').querySelector('input[data-field="file_path"]').value = url;
             statusEl.textContent = '📄 Uploaded: ' + file.name;
           } catch (err) {
             statusEl.textContent = 'Upload failed: ' + err.message;
@@ -248,7 +249,7 @@
       document.querySelectorAll('[data-file-input="cover"]').forEach(inp => {
         inp.addEventListener('change', async () => {
           const idx = inp.dataset.index;
-          const card = document.querySelector(`.card[data-index="${idx}"]`);
+          const card = inp.closest('.card');
           const file = inp.files[0];
           if (!file) return;
           try {
