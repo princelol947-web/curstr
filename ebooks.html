@@ -33,6 +33,14 @@
   .top-seller-box .badge { background:var(--accent); color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:5px; white-space:nowrap; }
   .top-seller-box .name { font-size:14px; font-weight:600; }
   .top-seller-box .count { font-size:12px; color:var(--text-muted); margin-left:auto; white-space:nowrap; }
+  /* Liquid-metal ring around the search bar (CSS version of the metal effect) */
+  @property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  .metal-ring { position: relative; border-radius: 999px; padding: 1.5px; background: conic-gradient(from var(--ang), #3b3b42, #f1f2f7, #7c8190, #ffffff, #4a4d57, #cfd2dc, #3b3b42); animation: metalspin 6s linear infinite; box-shadow: 0 0 14px rgba(200,205,220,0.12); transition: box-shadow .3s; }
+  .metal-ring:focus-within { box-shadow: 0 0 20px rgba(230,235,250,0.38); }
+  .metal-ring input { border: 0 !important; border-radius: 999px !important; width: 100%; outline: none !important; margin-bottom: 0 !important; }
+  @keyframes metalspin { to { --ang: 360deg; } }
+  @media (prefers-reduced-motion: reduce) { .metal-ring { animation: none; } }
+  .metal-search { margin-bottom: 32px; }
   .search-input { width:100%; padding:12px 16px; margin-bottom:32px; background:var(--bg-elevated);
                   border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:15px; }
   .search-input:focus-visible { outline:2px solid var(--accent); }
@@ -110,7 +118,7 @@
   <h1>All ebooks</h1>
   <p class="sub">Every purchase goes straight to me — no distributor, no reseller.</p>
   <div id="topSellerBox" style="display:none;"></div>
-  <input type="text" id="searchBox" placeholder="Search ebooks by title…" class="search-input">
+  <div class="metal-ring metal-search"><input type="text" id="searchBox" placeholder="Search ebooks by title…" class="search-input"></div>
   <div class="grid" id="grid"></div>
   <p id="noResults" class="empty-search" style="display:none;">No ebooks match your search.</p>
   <p style="margin-top:28px;font-size:13px;color:var(--text-dim);">By completing a purchase, you agree to our <a href="terms.html" style="color:var(--accent);">Terms</a> and consent to our <a href="privacy.html" style="color:var(--accent);">Privacy Policy</a>, including use of your email to deliver your ebook.</p>
@@ -283,6 +291,33 @@
       renderGrid(matches);
       document.getElementById('noResults').style.display = matches.length === 0 ? 'block' : 'none';
     });
+
+    // Opened from the home page search (ebooks.html?q=...): fill the box and show matches
+    const q0 = (new URLSearchParams(location.search).get('q') || '').trim();
+    if (q0) {
+      document.getElementById('searchBox').value = q0;
+      const ranked = rankEbooks(ebooks, q0.toLowerCase());
+      renderGrid(ranked.list);
+      const nr = document.getElementById('noResults');
+      nr.textContent = 'No exact match for "' + q0 + '" - here are all our ebooks.';
+      nr.style.display = ranked.found ? 'none' : 'block';
+    }
+  }
+  // Best match first, then related ebooks (same words or same category), then everything else
+  function rankEbooks(ebooks, q) {
+    const words = q.split(/\s+/).filter(Boolean);
+    const rows = ebooks.map((b, i) => {
+      const t = (b.title || '').toLowerCase(), sub = (b.subtitle || '').toLowerCase(), d = (b.description || '').toLowerCase();
+      let s = 0;
+      if (t === q) s += 100; else if (t.startsWith(q)) s += 80; else if (t.includes(q)) s += 60;
+      words.forEach(w => { if (t.includes(w)) s += 15; if (sub.includes(w)) s += 6; if (d.includes(w)) s += 3; });
+      return { b, i, s };
+    });
+    const top = rows.reduce((a, c) => (c.s > a.s ? c : a), rows[0] || { s: 0, b: {} });
+    const cat = top && top.s > 0 ? (top.b.category || '') : '';
+    if (cat) rows.forEach(r => { if (r.s === 0 && (r.b.category || '') === cat) r.s = 1; });
+    rows.sort((a, b) => b.s - a.s || a.i - b.i);
+    return { list: rows.map(r => r.b), found: !!(top && top.s > 1) };
   }
   async function loadTopSeller(sb, ebooks) {
     try {
