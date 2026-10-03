@@ -54,10 +54,26 @@
   nav .logo a { display: flex; align-items: center; gap: 10px; color: inherit; text-decoration: none; }
   nav .logo img { height: 34px; width: 34px; object-fit: contain; display: block; }
   nav .links { display: flex; gap: 24px; font-size: 14px; color: var(--text-muted); }
-  .nav-search { flex: 1; max-width: 260px; margin: 0 16px; }
-  .nav-search input { width: 100%; padding: 7px 12px; background: var(--bg-elevated); border: 1px solid var(--border);
-                       border-radius: 6px; color: var(--text); font-size: 13px; }
-  .nav-search input:focus-visible { outline: 2px solid var(--accent); }
+  /* Search: a round liquid-metal button that opens into a search bar */
+  @property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+  @keyframes metalspin { to { --ang: 360deg; } }
+  .nav-search { position: relative; display: flex; align-items: center; gap: 8px; margin: 0 12px 0 0; isolation: isolate; }
+  .ns-field { width: 0; opacity: 0; overflow: hidden; display: flex; align-items: center; height: 38px; padding: 0; border-radius: 999px; background: rgba(255,255,255,0.05); border: 1px solid transparent; transition: width .35s cubic-bezier(.2,.8,.2,1), opacity .25s, padding .35s, border-color .35s; }
+  .nav-search.open .ns-field { width: 210px; opacity: 1; padding: 0 16px; border-color: rgba(255,255,255,0.1); box-shadow: inset 0 1px 0 rgba(255,255,255,0.06); }
+  .nav-search input { flex: 1; min-width: 0; width: 100%; background: none; border: 0; outline: none; color: var(--text); font-size: 14px; padding: 0; }
+  .metal-btn { position: relative; width: 38px; height: 38px; flex: none; border-radius: 50%; padding: 2px; border: 0; cursor: pointer; color: #fff; display: grid; place-items: center;
+               background: conic-gradient(from var(--ang), #3b3b42, #f1f2f7, #7c8190, #ffffff, #4a4d57, #cfd2dc, #3b3b42); animation: metalspin 5s linear infinite; }
+  .metal-btn::before { content: ''; position: absolute; inset: -7px; border-radius: 50%; z-index: -1; filter: blur(9px); animation: metalspin 3.5s linear infinite;
+                       background: conic-gradient(from calc(var(--ang) + 40deg), transparent 0 72%, rgba(130,165,255,0.55) 86%, transparent 100%); }
+  .metal-btn .in { width: 100%; height: 100%; border-radius: 50%; background: #1b1b1d; display: grid; place-items: center; }
+  .metal-btn .arr { display: none; }
+  .nav-search.open .metal-btn .mag { display: none; }
+  .nav-search.open .metal-btn .arr { display: block; }
+  @media (prefers-reduced-motion: reduce) { .metal-btn, .metal-btn::before { animation: none; } }
+  @media (max-width: 600px) {
+    .nav-search.open { position: absolute; inset: 0; margin: 0; padding: 0 12px; background: #0c0c0d; z-index: 5; justify-content: flex-end; }
+    .nav-search.open .ns-field { width: calc(100vw - 76px); }
+  }
   .hamburger-btn { background: none; border: none; color: var(--text); cursor: pointer; padding: 4px 2px; display: flex; }
   .hamburger-btn svg { width: 22px; height: 22px; }
   .nav-right { display: flex; align-items: center; gap: 12px; }
@@ -92,7 +108,6 @@
     nav { padding: 14px 16px; gap: 8px; flex-wrap: wrap; }
     nav .logo { font-size: 15px; }
     nav .logo img { height: 28px; width: 28px; }
-    .nav-search { order: 3; max-width: 100%; width: 100%; margin: 8px 0 0; flex-basis: 100%; }
     .nav-right { gap: 8px; }
     nav .cta { padding: 7px 12px; font-size: 13px; }
   }
@@ -180,6 +195,13 @@
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 20px;
   }
+  .cat-chips { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 24px; scrollbar-width: none; }
+  .cat-chips::-webkit-scrollbar { display: none; }
+  .cat-chip { flex: none; background: rgba(0,0,0,0.72); border: 1px solid var(--border); color: var(--text); border-radius: 999px; padding: 8px 18px; font-size: 14px; font-family: inherit; cursor: pointer; }
+  .cat-chip.on { background: linear-gradient(135deg, var(--accent), var(--accent-dark)); border-color: transparent; color: #fff; }
+  .cat-sec { margin-bottom: 36px; }
+  .hrow { display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x proximity; padding: 4px 2px 12px; -webkit-overflow-scrolling: touch; }
+  .hrow .card { flex: 0 0 160px; scroll-snap-align: start; }
   .card {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
@@ -344,6 +366,8 @@
   .slider-arrow:hover { background: var(--accent); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.5); }
   .slider-arrow:active { transform: translateY(-50%) scale(0.85); }
 </style>
+<script src="theme.js"></script>
+<script src="orbs.js"></script>
 </head>
 <body>
 
@@ -354,8 +378,12 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
   </button>
   <div class="logo"><a href="index.html"><img src="data:image/png;base64,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" alt="Curse Trading logo" width="34" height="34"><span class="logo-text">Curse Trading<span>.</span></span></a></div>
-  <form id="navSearchForm" class="nav-search">
-    <input type="text" id="navSearchInput" placeholder="Search ebooks…" autocomplete="off">
+  <form id="navSearchForm" class="nav-search" action="ebooks.html" method="get">
+    <div class="ns-field"><input type="text" id="navSearchInput" name="q" placeholder="Search ebooks…" autocomplete="off"></div>
+    <button type="submit" id="navSearchBtn" class="metal-btn" aria-label="Search"><span class="in">
+      <svg class="mag" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <svg class="arr" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </span></button>
   </form>
   <div class="nav-right">
     <a href="login.html" id="profileLink" class="profile-icon" aria-label="Account">
@@ -366,6 +394,7 @@
   <div class="dropdown-menu" id="dropdownMenu">
     <a href="ebooks.html">Browse</a>
     <a href="my-account.html">My Account</a>
+    <a href="coins.html">Blaze Coins</a>
     <a href="terms.html">Terms</a>
     <a href="privacy.html">Privacy</a>
     <a href="my-account.html#bug">Report a bug / Help</a>
@@ -379,20 +408,9 @@
   <div class="slider-dots" id="sliderDots"></div>
 </section>
 
-<section class="hero">
-  <div class="hero-content">
-    <p class="eyebrow">Ebooks</p>
-    <h1>Read something worth<br/>finishing.</h1>
-    <p class="lede">Independently written, sold directly by the author. No middleman, no distributor markup — every copy comes straight from here.</p>
-    <a href="ebooks.html" class="browse-btn">Browse ebooks</a>
-  </div>
-</section>
-
 <section class="catalog" id="catalog">
-  <div class="catalog-header">
-    <h2>Latest releases</h2>
-  </div>
-  <div class="grid" id="catalogGrid"></div>
+  <div class="cat-chips" id="catChips"></div>
+  <div id="catalogSections"></div>
   <p style="margin-top:20px;"><a href="ebooks.html" class="link-chip">See all ebooks →</a></p>
 </section>
 
@@ -449,9 +467,20 @@
     `).join('');
   }
 
-  function renderCatalogGrid(ebooks) {
-    const grid = document.getElementById('catalogGrid');
-    grid.innerHTML = ebooks.slice(0, 4).map(b => `
+  // Categories: uses the ebook's "category" field if it has one, otherwise matches words in the title.
+  // Edit the keywords below to add or change sections.
+  const CATEGORIES = [
+    { name: 'Psychology', keywords: ['psych', 'mind', 'emotion', 'habit', 'behavio', 'mental'] },
+    { name: 'Trading', keywords: ['trad', 'market', 'chart', 'forex', 'stock', 'crypto', 'invest', 'candle'] },
+  ];
+  function catOf(b) {
+    if (b.category) return String(b.category).trim();
+    const t = (b.title || '').toLowerCase();
+    const m = CATEGORIES.find(c => c.keywords.some(k => t.includes(k)));
+    return m ? m.name : '';
+  }
+  function cardHTML(b) {
+    return `
       <a href="ebooks.html" class="card" style="text-decoration:none;color:inherit;display:block;position:relative;">
         <div style="position:relative;">
           ${b.cover_image
@@ -462,10 +491,28 @@
         <h3>${escHtml(b.title)}</h3>
         <p>${escHtml(b.price)}</p>
       </a>
-    `).join('');
+    `;
+  }
+  function renderCatalogGrid(ebooks) {
+    const cats = {};
+    ebooks.forEach(b => { const c = catOf(b); if (c) (cats[c] = cats[c] || []).push(b); });
+    const order = CATEGORIES.map(c => c.name).filter(n => cats[n]).concat(Object.keys(cats).filter(n => !CATEGORIES.some(c => c.name === n)));
+    const row = list => '<div class="hrow">' + list.map(cardHTML).join('') + '</div>';
+    document.getElementById('catChips').innerHTML =
+      ['All'].concat(order).map((n, i) => `<button class="cat-chip${i ? '' : ' on'}" data-c="${escHtml(n)}">${escHtml(n)}</button>`).join('');
+    document.getElementById('catalogSections').innerHTML =
+      `<div class="cat-sec" data-c="All"><div class="catalog-header"><h2>Latest releases</h2></div>${row(ebooks)}</div>` +
+      order.map(n => `<div class="cat-sec" data-c="${escHtml(n)}"><div class="catalog-header"><h2>${escHtml(n)}</h2></div>${row(cats[n])}</div>`).join('');
+    document.getElementById('catChips').onclick = e => {
+      const b = e.target.closest('.cat-chip'); if (!b) return;
+      const c = b.dataset.c;
+      document.querySelectorAll('.cat-chip').forEach(x => x.classList.toggle('on', x === b));
+      document.querySelectorAll('.cat-sec').forEach(x => { x.style.display = (c === 'All' || x.dataset.c === c) ? '' : 'none'; });
+    };
   }
 
   async function loadSiteContent() {
+    if (window.orbBlock) document.getElementById('catalogSections').innerHTML = orbBlock('searching', 'Loading ebooks…');
     let banners = FALLBACK_BANNERS;
     let ebooks = FALLBACK_EBOOKS;
 
@@ -554,11 +601,20 @@
     } catch (e) { /* leave default (login.html) if this check fails */ }
   })();
 
-  document.getElementById('navSearchForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const q = document.getElementById('navSearchInput').value.trim();
-    window.location.href = 'ebooks.html' + (q ? '?q=' + encodeURIComponent(q) : '');
-  });
+  (function () {
+    const nf = document.getElementById('navSearchForm'), ni = document.getElementById('navSearchInput'), nb = document.getElementById('navSearchBtn');
+    nb.addEventListener('click', (e) => {
+      if (!nf.classList.contains('open')) { e.preventDefault(); nf.classList.add('open'); setTimeout(() => ni.focus(), 250); }
+      else if (!ni.value.trim()) { e.preventDefault(); nf.classList.remove('open'); }
+    });
+    nf.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const q = ni.value.trim();
+      window.location.href = 'ebooks.html' + (q ? '?q=' + encodeURIComponent(q) : '');
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') nf.classList.remove('open'); });
+    document.addEventListener('click', (e) => { if (!nf.contains(e.target) && !ni.value.trim()) nf.classList.remove('open'); });
+  })();
 
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const dropdownMenu = document.getElementById('dropdownMenu');
@@ -598,12 +654,14 @@
     }));
 
     function drawGlowingDot(p) {
+      const P = window.SITE_PARTICLES || { on: true, color: '#ef4444', light: 'rgba(252,180,180,0.95)' };
+      if (!P.on) return;
       ctx.save();
       ctx.shadowBlur = 24;
-      ctx.shadowColor = 'rgba(239,68,68,1)';
+      ctx.shadowColor = P.color;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(252,180,180,0.95)';
+      ctx.fillStyle = P.light;
       ctx.fill();
       // extra bright core for more punch
       ctx.shadowBlur = 0;
@@ -686,6 +744,8 @@
     });
   })();
 </script>
+<script src="blaze-config.js"></script>
+<script src="blaze-coins.js"></script>
 <script src="chatbot.js"></script>
 </body>
 </html>
