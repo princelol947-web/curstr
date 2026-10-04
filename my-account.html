@@ -69,6 +69,8 @@
   textarea{width:100%;padding:10px 12px;background:#0f0f0f;border:1px solid var(--border);border-radius:6px;
            color:var(--text);font-size:14px;font-family:inherit;min-height:90px;resize:vertical;}
 </style>
+<script src="theme.js"></script>
+<script src="fit-phone.js"></script>
 </head>
 <body>
 <header>
@@ -91,6 +93,9 @@
     <button class="primary" id="saveNameBtn">Save name</button>
     <p class="status" id="nameStatus"></p>
   </div>
+
+  <h2>Blaze Coins</h2>
+  <div id="blazeProfile"></div>
 
   <h2>Change password</h2>
   <div class="card">
@@ -341,4 +346,6 @@
     init();
   }
 </script>
+<script src="blaze-config.js"></script>
+<script src="blaze-coins.js"></script>
 </body></html>
