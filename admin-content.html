@@ -363,7 +363,7 @@
       const statusEl = document.getElementById('categoryStatus');
       const updated = readCategoriesFromDOM();
       statusEl.textContent = 'Saving…'; statusEl.className = 'status';
-      const { error } = await sb.from('site_content').upsert({ key: 'categories', value: updated, updated_at: new Date().toISOString() });
+      const { error } = await sb.from('site_content').upsert({ key: 'categories', value: updated, updated_at: new Date().toISOString() }, { onConflict: 'key' });
       statusEl.textContent = error ? `Failed: ${error.message}` : 'Saved ✓';
       statusEl.className = 'status ' + (error ? 'err' : 'ok');
       categories = updated;
@@ -373,7 +373,7 @@
       const statusEl = document.getElementById('bannerStatus');
       statusEl.textContent = 'Saving…'; statusEl.className = 'status';
       const updated = readBannersFromDOM();
-      const { data: saved, error: err0 } = await sb.from('site_content').upsert({ key: 'banners', value: updated, updated_at: new Date().toISOString() }).select();
+      const { data: saved, error: err0 } = await sb.from('site_content').upsert({ key: 'banners', value: updated, updated_at: new Date().toISOString() }, { onConflict: 'key' }).select();
       const error = err0 || ((saved && saved.length) ? null : { message: 'Nothing was saved. Make sure you are signed in as the admin.' });
       statusEl.textContent = error ? `Failed: ${error.message}` : 'Saved ✓';
       statusEl.className = 'status ' + (error ? 'err' : 'ok');
@@ -388,7 +388,7 @@
         return;
       }
       statusEl.textContent = 'Saving…'; statusEl.className = 'status';
-      const { data: saved, error: err0 } = await sb.from('site_content').upsert({ key: 'ebooks', value: updated, updated_at: new Date().toISOString() }).select();
+      const { data: saved, error: err0 } = await sb.from('site_content').upsert({ key: 'ebooks', value: updated, updated_at: new Date().toISOString() }, { onConflict: 'key' }).select();
       const error = err0 || ((saved && saved.length) ? null : { message: 'Nothing was saved. Make sure you are signed in as the admin.' });
       statusEl.textContent = error ? `Failed: ${error.message}` : 'Saved ✓';
       statusEl.className = 'status ' + (error ? 'err' : 'ok');
