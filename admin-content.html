@@ -44,8 +44,13 @@
   .card .checkbox-row input[type=checkbox]{appearance:none;-webkit-appearance:none;display:grid;place-content:center;flex:none;width:28px;height:28px;min-height:0;padding:0;border-radius:8px;border:1.5px solid var(--border2);background:var(--field);cursor:pointer;}
   .card .checkbox-row input[type=checkbox]:checked{background:#000;border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.14);}
   .card .checkbox-row input[type=checkbox]:checked::after{content:'';width:13px;height:7px;margin-top:-3px;border:solid #fff;border-width:0 0 3px 3px;transform:rotate(-45deg);}
-  .remove-btn{position:absolute;top:12px;right:12px;display:grid;place-items:center;width:36px;height:36px;padding:0;border:1px solid var(--border2);border-radius:50%;background:rgba(8,8,8,.9);color:var(--text-muted);font-size:15px;cursor:pointer;z-index:3;}
-  .remove-btn:hover{color:#fff;border-color:var(--accent);}
+  .remove-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 16px;border:1px solid rgba(239,58,69,.55);border-radius:12px;background:rgba(239,58,69,.08);color:#ff8f98;font-weight:600;font-size:15px;font-family:inherit;cursor:pointer;}
+  .remove-btn:hover{color:#fff;background:rgba(239,58,69,.2);}
+  .remove-btn.icon{width:46px;padding:0;flex:none;}
+  .card:has(.del-bottom){display:flex;flex-direction:column;}
+  .del-bottom{order:99;width:100%;height:50px;margin-top:22px;}
+  .banner-preview{position:relative;flex:none;width:46%;aspect-ratio:12/5;border-radius:12px;border:1px solid var(--border2);background:#000 center/cover no-repeat;display:grid;place-items:center;color:var(--text-dim);font-size:12px;text-align:center;}
+  .link-btn{align-self:flex-start;background:none;border:0;padding:6px 0;margin-top:6px;color:var(--text-muted);text-decoration:underline;font-size:13px;cursor:pointer;}
   .add-btn,.save-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-size:17px;font-weight:700;cursor:pointer;border-radius:16px;}
   .add-btn{height:56px;color:var(--text);background:rgba(12,12,12,.8);border:1.5px solid var(--border2);}
   .add-btn:hover{border-color:var(--blue);color:#fff;}
@@ -131,18 +136,27 @@
       return `
         <div class="card" data-index="${i}" style="padding:12px 16px;display:flex;align-items:center;gap:10px;">
           <input data-field="name" value="${esc(name)}" placeholder="Category name" style="flex:1;">
-          <button class="remove-btn" data-remove-category="${i}" style="position:static;">✕</button>
+          <button class="remove-btn icon" data-remove-category="${i}" aria-label="Delete category" title="Delete category"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></button>
         </div>`;
     }
     function bannerCardHTML(b, i) {
       return `
         <div class="card" data-index="${i}">
-          <button class="remove-btn" data-remove-banner="${i}">✕</button>
           <label>Title</label><input data-field="title" value="${esc(b.title)}">
           <label>Subtitle</label><input data-field="subtitle" value="${esc(b.subtitle)}">
           <label>Button text</label><input data-field="cta_text" value="${esc(b.cta_text)}">
           <label>Button link</label><input data-field="cta_link" value="${esc(b.cta_link)}">
           <label>Background (CSS gradient or color)</label><input data-field="color" value="${esc(b.color)}">
+          <label>Banner image (optional)</label>
+          <div class="cover-row">
+            <div class="banner-preview" style="${b.image ? `background-image:url('${esc(b.image)}')` : ''}">${b.image ? '' : 'No image yet'}</div>
+            <div class="cover-meta"><b>Banner image</b><span>Shown behind the banner text</span></div>
+          </div>
+          <input type="file" accept="image/*" data-file-input="banner">
+          <input type="hidden" data-field="image" value="${esc(b.image || '')}">
+          <div class="file-status"></div>
+          <button type="button" class="link-btn" data-clear-banner-image>Remove image</button>
+          <button class="remove-btn del-bottom" data-remove-banner="${i}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg> Delete banner</button>
         </div>`;
     }
     function ebookCardHTML(e, i) {
@@ -150,7 +164,6 @@
       const hasFile = !!e.file_path;
       return `
         <div class="card" data-index="${i}">
-          <button class="remove-btn" data-remove-ebook="${i}">✕</button>
 
           <label>Title</label><input data-field="title" value="${esc(e.title)}">
 
@@ -202,6 +215,7 @@
           <label>Available again on (shown to buyers while sold out)</label>
           <input type="datetime-local" data-field="available_at" value="${esc(e.available_at)}">
           <div class="status-note" data-status-note="${i}"></div>
+          <button class="remove-btn del-bottom" data-remove-ebook="${i}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg> Delete ebook</button>
         </div>`;
     }
     function esc(v) {
@@ -223,6 +237,20 @@
       return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
     }
 
+    // Banner pictures: cropped to a wide 12:5 shape, max 1200px, small JPEG
+    async function compressBanner(file) {
+      const im = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Could not read that image')); i.src = URL.createObjectURL(file); });
+      const tr = 12 / 5, sr = im.width / im.height;
+      let sw = im.width, sh = im.height, sx = 0, sy = 0;
+      if (sr > tr) { sw = im.height * tr; sx = (im.width - sw) / 2; } else { sh = im.width / tr; sy = (im.height - sh) / 2; }
+      const c = document.createElement('canvas');
+      c.width = Math.min(1200, Math.round(sw)); c.height = Math.round(c.width / tr);
+      c.getContext('2d').drawImage(im, sx, sy, sw, sh, 0, 0, c.width, c.height);
+      const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.82));
+      return new File([blob], file.name.replace(/\.[^.]+$/, '') + '.jpg', { type: 'image/jpeg' });
+    }
+    function note(id, text) { const el = document.getElementById(id); el.textContent = text; el.className = 'status'; }
+
     async function uploadToStorage(bucket, file) {
       const path = `${Date.now()}-${file.name}`.replace(/[^a-zA-Z0-9.\-_]/g, '_');
       const { error } = await sb.storage.from(bucket).upload(path, file, { upsert: true });
@@ -236,9 +264,12 @@
       document.querySelectorAll('[data-remove-category]').forEach(btn => {
         btn.addEventListener('click', () => {
           categories = readCategoriesFromDOM();
+          const nm = categories[+btn.dataset.removeCategory];
+          if (!confirm(`Delete category ${nm ? '"' + nm + '"' : 'this one'}? Tap "Save categories" afterwards to apply.`)) return;
           categories.splice(+btn.dataset.removeCategory, 1);
           renderCategories();
           renderEbooks();
+          note('categoryStatus', 'Category removed — tap "Save categories" to apply.');
         });
       });
     }
@@ -248,7 +279,35 @@
     function renderBanners() {
       document.getElementById('bannerList').innerHTML = banners.map(bannerCardHTML).join('');
       document.querySelectorAll('[data-remove-banner]').forEach(btn => {
-        btn.addEventListener('click', () => { banners.splice(+btn.dataset.removeBanner, 1); renderBanners(); });
+        btn.addEventListener('click', () => {
+          banners = readBannersFromDOM();
+          const t = banners[+btn.dataset.removeBanner];
+          if (!confirm(`Delete banner ${t && t.title ? '"' + t.title + '"' : 'this banner'}? Tap "Save banners" afterwards to apply.`)) return;
+          banners.splice(+btn.dataset.removeBanner, 1);
+          renderBanners();
+          note('bannerStatus', 'Banner removed — tap "Save banners" to apply.');
+        });
+      });
+      document.querySelectorAll('[data-file-input="banner"]').forEach(inp => {
+        inp.addEventListener('change', async () => {
+          const file = inp.files[0]; if (!file) return;
+          const card = inp.closest('.card'), st = card.querySelector('.file-status');
+          if (!file.type.startsWith('image/')) { st.textContent = 'Please choose a picture.'; inp.value = ''; return; }
+          st.textContent = 'Uploading…';
+          try {
+            const url = await uploadToStorage('ebook-covers', await compressBanner(file));
+            card.querySelector('input[data-field="image"]').value = url;
+            const pv = card.querySelector('.banner-preview'); pv.style.backgroundImage = `url('${url}')`; pv.textContent = '';
+            st.textContent = 'Uploaded ✓ — tap "Save banners" to apply.';
+          } catch (err) { st.textContent = 'Upload failed: ' + err.message; }
+        });
+      });
+      document.querySelectorAll('[data-clear-banner-image]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const card = btn.closest('.card');
+          card.querySelector('input[data-field="image"]').value = '';
+          const pv = card.querySelector('.banner-preview'); pv.style.backgroundImage = ''; pv.textContent = 'No image yet';
+        });
       });
     }
     function renderEbooks() {
@@ -262,6 +321,7 @@
           if (!confirm(`Delete ${name} permanently? This can't be undone once you save.`)) return;
           ebooks.splice(+btn.dataset.removeEbook, 1);
           renderEbooks();
+          note('ebookStatus', 'Ebook removed — tap "Save ebooks" to apply.');
         });
       });
       document.querySelectorAll('[data-file-input="ebook"]').forEach(inp => {
@@ -372,7 +432,7 @@
     });
     document.getElementById('addBanner').addEventListener('click', () => {
       banners = readBannersFromDOM();
-      banners.push({ title: '', subtitle: '', cta_text: 'Learn more', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#78350f,#0a0a0a)' });
+      banners.push({ title: '', subtitle: '', cta_text: 'Learn more', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#78350f,#0a0a0a)', image: '' });
       renderBanners();
     });
     document.getElementById('addEbook').addEventListener('click', () => {
