@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#0a0a0a">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; frame-src https://api.razorpay.com https://checkout.razorpay.com; form-action 'self'; base-uri 'self'; object-src 'none'">
 <title>Blaze Coins | Curse Trading</title>
 <style>
   :root{--bg:#0a0a0a;--card:#171717;--border:#262626;--text:#f5f5f5;--muted:#a3a3a3;--accent:#ef4444;--gold:#f5d36b}
@@ -29,7 +30,7 @@
   #toast.show{opacity:1}
 </style>
 <script src="theme.js"></script>
-<script src="orbs.js"></script>
+<script src="orbs.js?v=3"></script>
 </head>
 <body>
 <header>
@@ -46,7 +47,7 @@
   <div id="body"></div>
 </main>
 <div id="toast"></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 <script src="admin-config.js?v=2"></script>
 <script src="blaze-config.js"></script>
 <script src="blaze-coins.js"></script>
@@ -54,6 +55,7 @@
   const B = BlazeCoins, C = B.cfg; let tab = 'earn';
   document.getElementById('ico').innerHTML = B.icon(26);
   const $ = id => document.getElementById(id);
+  const esc = v => String(v).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
   function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
   const row = (t, s, btn) => `<div class="row"><div><b>${t}</b><span class="muted">${s}</span></div>${btn||''}</div>`;
 
@@ -66,25 +68,17 @@
     $('guest').style.display = B.signedIn() ? 'none' : 'block';
     let h = '';
     if (tab === 'earn') {
-      h = row('Buy an ebook', `${t.cur.rate} coins for every ${C.currency}${C.perUnit} you spend`) +
-          row('Claim your weekly prize', 'Open the Perks tab');
-      if (C.demoButtons) h += row('Test: simulate a ' + C.currency + '500 purchase', 'For testing only', '<button class="go" data-a="demo">Add</button>');
+      h = row('Buy an ebook', `${t.cur.rate} coins for every ${C.currency}${C.perUnit} you spend`) + row('Your history', 'See every coin you earned or used in My Account.');
     } else if (tab === 'use') {
-      h = C.redeem.map(r => row(r.title, r.cost + ' coins', `<button class="go" data-a="use" data-id="${r.id}" ${s.balance < r.cost ? 'disabled' : ''}>Redeem</button>`)).join('');
+      h = row('Redeeming coins is not available yet', 'We will announce it here when it opens.');
     } else {
-      h = '<h3>' + t.cur.name + ' perks</h3>' + t.cur.perks.map(p => row(p, '')).join('') +
-          '<h3>Weekly prize</h3>' + `<div class="row prize"><div><b>Next ${t.cur.name} prize</b><span class="muted">Available on ${new Date(s.next_prize).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})} · ${t.cur.prize} coins</span></div><button class="go" data-a="claim" ${B.prizeReady() ? '' : 'disabled'}>Claim</button></div>`;
+      h = '<h3>' + esc(t.cur.name) + ' perks</h3>' + t.cur.perks.map(p => row(esc(p), '')).join('') + '<h3>Weekly prize</h3>' + row('Coming soon', 'Weekly prizes are not available yet.');
     }
     $('body').innerHTML = h;
   }
   B.on(draw);
   $('tabs').onclick = e => { const b = e.target.closest('button'); if (!b) return;
     tab = b.dataset.t; [...$('tabs').children].forEach(x => x.classList.toggle('on', x === b)); draw(B.get(), B.info()); };
-  $('body').onclick = e => { const b = e.target.closest('button[data-a]'); if (!b) return;
-    if (b.dataset.a === 'demo') toast('+' + B.earn(500) + ' coins added');
-    if (b.dataset.a === 'claim') toast('+' + B.claimPrize() + ' coins claimed!');
-    if (b.dataset.a === 'use') { const r = C.redeem.find(x => x.id === b.dataset.id);
-      if (B.spend(r.cost)) toast('Redeemed! Code: BLAZE-' + Math.random().toString(36).slice(2, 8).toUpperCase()); } };
 </script>
 </body>
 </html>
