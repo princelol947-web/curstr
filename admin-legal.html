@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; form-action 'self'; base-uri 'self'; object-src 'none'">
+<style id="fb">html{display:none}</style><script>if(self===top){document.getElementById("fb").remove()}else{top.location=self.location}</script>
+<title>Legal Pages</title>
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<style>
+:root{--bg:#0a0a0a;--card:#171717;--b:#262626;--t:#f5f5f5;--m:#a3a3a3;--a:#ef4444}
+*{box-sizing:border-box}body{margin:0 auto;background:var(--bg);color:var(--t);font-family:system-ui,sans-serif;padding:16px;max-width:760px}
+h1{font-size:20px;margin:0 0 4px}h2{font-size:16px;margin:22px 0 8px}.card{background:var(--card);border:1px solid var(--b);border-radius:12px;padding:14px;margin-bottom:12px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+input,select,textarea{width:100%;padding:10px;background:#0f0f0f;border:1px solid var(--b);border-radius:8px;color:var(--t);font:inherit;font-size:15px}
+textarea{min-height:52vh;resize:vertical;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;line-height:1.5}
+button,a.btn{background:var(--a);color:#fff;border:0;border-radius:8px;padding:10px 14px;font-weight:600;cursor:pointer;font-size:15px;text-decoration:none;display:inline-block}
+button.g,a.btn.g{background:#2a2a2a}.m{color:var(--m);font-size:13px}
+.warn{border:1px solid var(--a);background:rgba(239,68,68,.08);color:#fca5a5;border-radius:10px;padding:10px 12px;font-size:14px;margin-top:10px;display:none}
+.ok{border:1px solid #2f6f3f;background:rgba(47,111,63,.12);color:#9fe3b0}
+#prev{background:#0a0a0a;border:1px solid var(--b);border-radius:12px;padding:6px 16px 14px}
+#prev h2{font-size:18px;margin:22px 0 8px}#prev h3{font-size:16px}#prev p,#prev li{color:#d6d6d6;font-size:15px;overflow-wrap:anywhere}#prev a{color:#ff6b6b}
+#msg{position:sticky;bottom:10px;background:#222;border:1px solid #444;border-radius:10px;padding:10px;display:none;margin-top:10px}
+details summary{cursor:pointer;color:var(--m);font-size:14px}code{background:#222;padding:1px 5px;border-radius:5px}
+</style></head><body>
+<h1>Legal pages</h1><div class="m">Edit the text of your policy pages. Visitors see it as soon as you save.</div>
+
+<div id="login" class="card" style="display:none;margin-top:14px"><b>Admin sign in</b>
+  <div class="row"><input type="email" id="em" placeholder="Email" autocomplete="username"><input type="password" id="pw" placeholder="Password" autocomplete="current-password"><button id="go">Sign in</button></div></div>
+
+<div id="app" style="display:none">
+  <h2>Choose a page</h2>
+  <div class="card">
+    <select id="which"></select>
+    <div class="m" id="state" style="margin-top:8px"></div>
+    <div class="warn" id="blank"></div>
+  </div>
+
+  <h2>Text</h2>
+  <textarea id="txt" spellcheck="true" aria-label="Page text"></textarea>
+  <div class="m" id="count" style="margin-top:6px"></div>
+  <details class="card" style="margin-top:12px"><summary>How to write (tap to open)</summary>
+    <div class="m" style="margin-top:8px;line-height:1.7">
+      <code>## Heading</code> makes a section heading.<br>
+      <code>- item</code> makes a bullet point.<br>
+      <code>**bold**</code> makes bold text.<br>
+      <code>[text](https://example.com)</code> makes a link. You can also use <code>mailto:you@mail.com</code> or a page like <code>contact.html</code>.<br>
+      A blank line starts a new paragraph.<br><br>
+      Anything inside <code>[[ double square brackets ]]</code> is a blank you still have to fill in. A page that still has one is <b>not shown</b> to visitors: they see "This page is being updated".<br>
+      You cannot add HTML or scripts here. They would only show as plain text.
+    </div></details>
+
+  <div class="row">
+    <button id="save">Save</button>
+    <a class="btn g" id="view" target="_blank" rel="noopener">Open page</a>
+    <button class="g" id="reset">Reset to starter text</button>
+  </div>
+
+  <h2>Preview</h2>
+  <div id="prev"></div>
+</div>
+<div id="msg" role="status"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+<script src="admin-config.js"></script>
+<script src="legal.js"></script>
+<script>
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY), $ = id => document.getElementById(id);
+const MAX = 60000;
+let dirty = false;
+const say = m => { const e = $('msg'); e.textContent = m; e.style.display = 'block'; clearTimeout(say.t); say.t = setTimeout(() => e.style.display = 'none', 4000); };
+const cur = () => LEGAL.find($('which').value);
+
+function refresh() {
+  const t = $('txt').value;
+  LEGAL.render(t, $('prev'));
+  $('count').textContent = t.length.toLocaleString() + ' / ' + MAX.toLocaleString() + ' characters';
+  const n = LEGAL.countBlanks(t), w = $('blank');
+  w.style.display = 'block';
+  if (!t.trim()) { w.className = 'warn'; w.textContent = 'This page is empty, so visitors see "This page is being updated".'; }
+  else if (n) { w.className = 'warn'; w.textContent = n + ' blank(s) marked [[ ]] left. Visitors will see "This page is being updated" until you replace every one.'; }
+  else { w.className = 'warn ok'; w.textContent = 'No blanks left. Visitors will see this text once you save.'; }
+}
+
+async function openPage() {
+  const p = cur();
+  $('state').textContent = 'Loading…';
+  const r = await LEGAL.load(p.slug);
+  $('txt').value = r.text; dirty = false;
+  $('state').textContent = r.saved
+    ? 'Saved text' + (r.updated && !isNaN(Date.parse(r.updated)) ? ' (last saved ' + new Date(r.updated).toLocaleString('en-IN') + ')' : '')
+    : 'Nothing saved yet. This is the starter text.';
+  $('view').href = p.slug === 'terms' || p.slug === 'privacy' || p.slug === 'refund' ? 'legal.html?p=' + p.slug : p.file;
+  refresh();
+}
+
+$('which').onchange = () => { if (dirty && !confirm('You have unsaved changes. Leave without saving?')) { $('which').value = $('which').dataset.last; return; } $('which').dataset.last = $('which').value; openPage(); };
+$('txt').addEventListener('input', () => { dirty = true; refresh(); });
+addEventListener('beforeunload', e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+$('reset').onclick = () => { if (!confirm('Replace the text in the box with the starter text? Nothing is saved until you tap Save.')) return; $('txt').value = cur().text; dirty = true; refresh(); };
+
+$('save').onclick = async () => {
+  const p = cur(), text = $('txt').value;
+  if (text.length > MAX) return say('Too long. Please keep it under ' + MAX.toLocaleString() + ' characters.');
+  if (LEGAL.hasBlanks(text) && !confirm('There are still [[ ]] blanks. Visitors will NOT see this page yet. Save anyway?')) return;
+  $('save').disabled = true;
+  const { error } = await sb.from('site_content').upsert({ key: LEGAL.key(p.slug), value: { text, updated: new Date().toISOString() } }, { onConflict: 'key' });
+  $('save').disabled = false;
+  if (error) return say('Could not save: ' + error.message);
+  dirty = false; say('Saved ✓'); openPage();
+};
+
+$('go').onclick = async () => {
+  const { error } = await sb.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value });
+  $('pw').value = '';
+  error ? say(error.message) : start();
+};
+
+async function start() {
+  const { data: { session } } = await sb.auth.getSession();
+  $('login').style.display = session ? 'none' : 'block'; $('app').style.display = 'none';
+  if (!session) return;
+  // Friendly check only. The database itself decides who may save (row-level security).
+  const email = (session.user.email || '').toLowerCase();
+  const { data: perm } = await sb.from('admin_permissions').select('email').eq('email', email).maybeSingle();
+  if (!perm) { $('login').style.display = 'block'; return say('This account is not authorized as admin or sub-admin.'); }
+  $('app').style.display = 'block';
+  const sel = $('which');
+  sel.textContent = '';
+  LEGAL.PAGES.forEach(p => { const o = document.createElement('option'); o.value = p.slug; o.textContent = p.title + (p.text ? '' : '  (optional)'); sel.appendChild(o); });
+  sel.dataset.last = sel.value;
+  openPage();
+}
+start();
+</script><script src="admin-nav.js"></script>
+</body></html>
