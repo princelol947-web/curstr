@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; frame-src https://api.razorpay.com https://checkout.razorpay.com; form-action 'self'; base-uri 'self'; object-src 'none'">
 <title>Curse Trading | E-books</title>
 <meta name="theme-color" content="#0a0a0a">
 <meta name="description" content="Curse Trading ebooks - build 17 banner-images">
@@ -476,7 +477,7 @@
   <button id="acceptCookies">Got it</button>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
 <script src="admin-config.js"></script>
 <script>
   // --- Load banners + ebooks from Supabase (admin-editable via Manage Content) ---
@@ -485,12 +486,7 @@
     { title: 'Buy 2, save 15%', subtitle: 'Mix and match any two titles at checkout.', cta_text: 'See ebooks', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#991b1b,#0a0a0a)' },
     { title: 'Read the first chapter free', subtitle: 'No account needed, no strings attached.', cta_text: 'Start reading', cta_link: 'ebooks.html', color: 'linear-gradient(135deg,#b91c1c,#0a0a0a)' },
   ];
-  const FALLBACK_EBOOKS = [
-    { title: 'The Long Way Home', price: '$9.00', color: 'linear-gradient(135deg,#ef4444,#991b1b)', cover_image: '', sold_out: false },
-    { title: 'Field Notes', price: '$6.50', color: 'linear-gradient(135deg,#78716c,#292524)', cover_image: '', sold_out: false },
-    { title: 'Quiet Hours', price: '$8.00', color: 'linear-gradient(135deg,#57534e,#1c1917)', cover_image: '', sold_out: false },
-    { title: 'After the Rain', price: '$7.25', color: 'linear-gradient(135deg,#dc2626,#7f1d1d)', cover_image: '', sold_out: false },
-  ];
+  const FALLBACK_EBOOKS = [];   // no placeholder products: the real list always comes from the database
 
   function escHtml(s) {
     return (s == null ? '' : String(s))
@@ -549,6 +545,7 @@
     `;
   }
   function renderCatalogGrid(ebooks) {
+    if (!ebooks.length) { document.getElementById('catChips').innerHTML = ''; document.getElementById('catalogSections').innerHTML = '<p style="color:var(--text-muted)">No ebooks are available yet. Please check back soon.</p>'; return; }
     const cats = {};
     ebooks.forEach(b => { const c = catOf(b); if (c) (cats[c] = cats[c] || []).push(b); });
     const order = CATEGORIES.map(c => c.name).filter(n => cats[n]).concat(Object.keys(cats).filter(n => !CATEGORIES.some(c => c.name === n)));
