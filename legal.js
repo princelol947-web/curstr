@@ -99,7 +99,58 @@ For every ₹100 you spend on an eligible ebook you earn 10 Blaze Coins. [[FILL 
 - **Account closure:** [[OWNER DECISION: what happens to coins when an account is deleted]]` },
 
     // Optional: only used if you link to legal.html?p=terms (your existing terms.html is not touched).
-    { slug: 'terms', file: 'legal.html?p=terms', title: 'Terms & Conditions', sub: '', text: '' },
+    { slug: 'terms', file: 'terms-of-service.html', title: 'Terms of Service', sub: 'The rules for using Curse Trading and buying our ebooks.', text: `## About these terms
+Curse Trading (cursetrading.dpdns.org) sells digital ebooks. By using this website, creating an account or buying an ebook you agree to these terms. If you do not agree, please do not use the website. The store is run by [[FILL IN: name(s) of the person or people responsible for the store. See the Contact page]].
+
+## Using the website and your account
+- You must give correct details when you sign up, and keep your password private.
+- You are responsible for what happens on your account.
+- [[OWNER DECISION: minimum age to buy, for example 18. Ask a lawyer about buyers under 18]]
+- We may suspend or close an account that breaks these terms or is used to cheat, harm or defraud us or others.
+
+## Ebooks and digital delivery
+- Every ebook is a digital file. Nothing is shipped.
+- After a successful payment you get access as described on the [Digital Products & Delivery](digital-delivery.html) page.
+- When you buy, you get a personal licence to read the ebook for yourself. [[OWNER DECISION: write the licence you want, for example no sharing, copying, reselling or posting online]]
+
+## Prices and payment
+- Prices are shown in Indian rupees (₹). [[FILL IN: say whether prices include GST, or that you are not registered. Confirm with your accountant]]
+- Payments are handled by [[FILL IN: Razorpay / Stripe / other]]. We do not store your card or UPI details.
+- Your order is complete only after the payment provider confirms the payment.
+
+## Refunds
+Please read our [Refund Policy](refund-policy.html). Because ebooks are digital files, refunds follow the rules on that page.
+
+## Blaze Coins
+Blaze Coins are a rewards feature. Their rules are on the [Blaze Coins Terms](coins-terms.html) page.
+
+## Educational content, not advice
+- Our ebooks are for learning and general information.
+- Nothing on this website is investment, trading, financial, legal or tax advice, and we do not promise any profit or result.
+- Any decision you make is your own and at your own risk. [[OWNER DECISION: confirm this matches your ebooks. If any ebook gives specific trading or investment advice, ask a lawyer about the rules for that]]
+
+## Copyright and intellectual property
+- © Curse Trading. All rights reserved.
+- The ebooks, text, images, logo, design and code on this website belong to us or to the people who gave us permission to use them. [[FILL IN: the name of the owner of the content]]
+- You may not copy, resell, share, upload, translate or publish any ebook or part of this website without our written permission.
+- If you think something on this website copies your work, write to us using the details on the [Contact](contact.html) page and tell us what it is and where you saw it.
+
+## Acceptable use
+- Do not try to break into the website, copy its data by machine, or overload it.
+- Do not share your downloaded files or your account with other people.
+- Do not use the website for anything illegal.
+
+## Our responsibility
+- We try to keep the website working, but we cannot promise it will always be available or free of errors.
+- [[OWNER DECISION: limits on what you are responsible for. A lawyer should word this, and it cannot remove rights that Indian consumer law gives buyers]]
+
+## Changes to these terms
+We may change these terms. The date at the top of the page shows when they were last updated. If you keep using the website after a change, that means you accept the new terms. [[OWNER DECISION: how you will tell buyers about important changes]]
+
+## Law and complaints
+- These terms follow the laws of India. [[FILL IN: the city or state whose courts will handle disputes. Ask a lawyer]]
+- To make a complaint, see [Grievance Officer & Complaints](grievance.html).
+- For anything else, see [Contact](contact.html).` },
     { slug: 'privacy', file: 'legal.html?p=privacy', title: 'Privacy Policy', sub: '', text: '' },
     { slug: 'refund', file: 'legal.html?p=refund', title: 'Refund Policy', sub: '', text: '' }
   ];
@@ -137,27 +188,51 @@ For every ₹100 you spend on an eligible ebook you earn 10 Blaze Coins. [[FILL 
     if (last < s.length) parent.appendChild(document.createTextNode(s.slice(last)));
   }
 
+  // Each "## heading" starts a box (numbered, like the Refund Policy page). A line starting with ✓ or ✕ becomes a tick or cross item.
   function render(text, box) {
     box.textContent = '';
-    let list = null, para = null;
+    box.classList.add('legal-body');
+    let sec = null, list = null, para = null;
     const flush = () => { list = null; para = null; };
+    const host = () => sec || box;
     String(text || '').replace(/\r\n?/g, '\n').split('\n').forEach(raw => {
       const line = raw.trim();
       if (!line) return flush();
       let m;
       if ((m = /^(#{2,3})\s+(.+)$/.exec(line))) {
-        flush(); const h = document.createElement(m[1].length === 2 ? 'h2' : 'h3'); inline(h, m[2]); box.appendChild(h);
-      } else if ((m = /^[-*]\s+(.+)$/.exec(line))) {
+        flush();
+        if (m[1].length === 2) { sec = document.createElement('section'); sec.className = 'lbox'; box.appendChild(sec); }
+        const h = document.createElement(m[1].length === 2 ? 'h2' : 'h3'); inline(h, m[2]); host().appendChild(h);
+      } else if ((m = /^(?:([-*])|([✓✕]))\s+(.+)$/.exec(line))) {
         para = null;
-        if (!list) { list = document.createElement('ul'); box.appendChild(list); }
-        const li = document.createElement('li'); inline(li, m[1]); list.appendChild(li);
+        if (!list) { list = document.createElement('ul'); host().appendChild(list); }
+        const li = document.createElement('li');
+        if (m[2]) li.className = m[2] === '✓' ? 'yes' : 'no';
+        inline(li, m[3]); list.appendChild(li);
       } else {
         list = null;
-        if (!para) { para = document.createElement('p'); box.appendChild(para); } else para.appendChild(document.createElement('br'));
+        if (!para) { para = document.createElement('p'); host().appendChild(para); } else para.appendChild(document.createElement('br'));
         inline(para, line);
       }
     });
   }
+
+  // Look shared by the public pages and the admin preview.
+  const css = document.createElement('style');
+  css.textContent = `.legal-body{counter-reset:lsec}
+#legalFoot{gap:10px 10px!important}#legalFoot a{display:inline-block;background:linear-gradient(135deg,#ef4444,#991b1b);color:#fff!important;border-radius:8px;padding:7px 14px;text-decoration:none!important;box-shadow:0 3px 10px rgba(239,68,68,.35);font-size:13px}#legalFoot a:hover{filter:brightness(1.08)}
+.legal-body .lbox{background:#141414;border:1px solid #292929;border-radius:14px;padding:2px 18px 14px;margin:14px 0}
+.legal-body .lbox h2{counter-increment:lsec;font-size:18px;margin:16px 0 8px;color:#fff}
+.legal-body .lbox h2::before{content:counter(lsec) ". ";color:#ef4444}
+.legal-body .lbox h3{font-size:16px;margin:14px 0 6px;color:#fff}
+.legal-body .lbox p{margin:8px 0}
+.legal-body .lbox ul{list-style:none;padding:0;margin:8px 0}
+.legal-body .lbox li{position:relative;padding-left:22px;margin:7px 0}
+.legal-body .lbox li::before{content:"•";position:absolute;left:6px;color:#ef4444}
+.legal-body .lbox li.yes::before{content:"✓";left:3px;color:#34d399;font-weight:700}
+.legal-body .lbox li.no::before{content:"✕";left:3px;color:#ef4444;font-weight:700}
+.legal-body > p{margin:12px 0}`;
+  document.head.appendChild(css);
 
   // The newest saved text, or the starter text. { text, updated, saved }
   async function load(slug) {
