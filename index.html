@@ -268,6 +268,10 @@
     color: var(--text-dim);
   }
   footer a { color: inherit; text-decoration: none; }
+  .foot-copy{flex-basis:100%;margin-top:14px;font-size:12px;color:var(--text-dim)}
+  .foot-more{flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:flex-start;gap:8px 20px;margin-top:10px;font-size:13px;color:var(--text-dim)}
+  .foot-more a{color:inherit;text-decoration:none}.foot-more a:hover{color:var(--text-muted);text-decoration:underline}
+
   footer a:hover { color: var(--text-muted); }
   .link-chip {
     display: inline-block;
@@ -436,6 +440,8 @@
     <a href="coins.html">Blaze Coins</a>
     <a href="terms.html">Terms</a>
     <a href="privacy.html">Privacy</a>
+    <a href="contact.html">Contact</a>
+    <a href="cookie-policy.html">Cookie Policy</a>
     <a href="my-account.html#bug">Report a bug / Help</a>
   </div>
 </nav>
@@ -470,10 +476,13 @@
   <a href="terms.html" class="link-chip">Terms &amp; Conditions</a>
   <a href="privacy.html" class="link-chip">Privacy Policy</a>
   <a href="refund-policy.html" class="link-chip">Refund Policy</a>
+  <div class="foot-more"><a href="terms-of-service.html">Terms of Service</a><a href="contact.html">Contact</a><a href="grievance.html">Grievance</a><a href="cookie-policy.html">Cookie Policy</a><a href="digital-delivery.html">Digital Delivery</a><a href="coins-terms.html">Blaze Coins Terms</a></div>
+  <div class="foot-copy">&copy; <span class="yr"></span> Curse Trading. All rights reserved.</div>
 </footer>
+<script>document.querySelectorAll(".yr").forEach(function(e){e.textContent=new Date().getFullYear()});</script>
 
 <div class="banner" id="cookieBanner">
-  <p style="margin:0; max-width:640px;">This site uses basic analytics and stores your email if you make a purchase, so we can deliver your ebook.</p>
+  <p style="margin:0; max-width:640px;">This site keeps your sign-in session in your browser and, if you buy, stores your email so we can deliver your ebook. See our <a href="cookie-policy.html" style="color:inherit;text-decoration:underline">Cookie Policy</a>.</p>
   <button id="acceptCookies">Got it</button>
 </div>
 
