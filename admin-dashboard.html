@@ -20,7 +20,7 @@
   .signout{display:inline-flex;align-items:center;gap:8px;flex:none;height:42px;padding:0 14px;border:1px solid var(--red);border-radius:12px;background:transparent;color:#fff;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer;transition:background .2s,box-shadow .2s;}
   .signout:hover,.signout:active{background:var(--red);box-shadow:0 0 18px rgba(255,37,37,.4);}
   main{max-width:900px;margin:0 auto;padding:18px 14px 60px;}
-  .stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:14px;}
   .stat{padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--card);}
   .stat .val{font-size:26px;font-weight:800;color:var(--red);}
   .stat .label{margin-top:2px;font-size:13px;color:var(--muted);}
@@ -147,7 +147,14 @@
         const cur = String(r[map.currency] || 'INR').toUpperCase();
         return { email: r[map.email], ebook: r[map.ebook], amount, sym: SYMBOLS[cur] || cur + ' ', date: map.date ? new Date(r[map.date]) : null };
       });
-      renderStats(buyers); renderHourly(buyers); renderTable(buyers);
+
+      // Logins (30d): from login_history (see login-history.sql). Shows "—" if that hasn't been run yet,
+      // rather than breaking the rest of the dashboard.
+      let loginCount = null;
+      const loginsRes = await sb.from('login_history').select('*', { count: 'exact', head: true }).gte('created_at', new Date(since).toISOString());
+      if (!loginsRes.error) loginCount = loginsRes.count;
+
+      renderStats(buyers, loginCount); renderHourly(buyers); renderTable(buyers);
     }
 
     function showError(msg) {
@@ -157,11 +164,12 @@
       document.getElementById('buyersState').innerHTML = '<div class="state err">' + ICON_WARN + '<b>Couldn\'t load buyers</b>' + esc(msg) + '<small>Check that the "orders" table exists and that your admin account is allowed to read it.</small></div>';
     }
 
-    function renderStats(b) {
+    function renderStats(b, loginCount) {
       const total = b.reduce((s, x) => s + (x.amount || 0), 0), sym = (b.find(x => x.amount != null) || { sym: '₹' }).sym;
       document.getElementById('stats').innerHTML =
         '<div class="stat"><div class="val">' + b.length + '</div><div class="label">Buyers (30d)</div></div>' +
-        '<div class="stat"><div class="val">' + sym + total.toLocaleString('en-IN', { maximumFractionDigits: 2 }) + '</div><div class="label">Revenue (30d)</div></div>';
+        '<div class="stat"><div class="val">' + sym + total.toLocaleString('en-IN', { maximumFractionDigits: 2 }) + '</div><div class="label">Revenue (30d)</div></div>' +
+        '<div class="stat"><div class="val">' + (loginCount == null ? '—' : loginCount) + '</div><div class="label">Logins (30d)</div></div>';
     }
 
     function renderHourly(b) {
