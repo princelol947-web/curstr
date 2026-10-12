@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; form-action 'self'; base-uri 'self'; object-src 'none'">
+<style id="fb">html{display:none}</style><script>if(self===top){document.getElementById("fb").remove()}else{top.location=self.location}</script>
+<title>Logins</title>
+<meta name="theme-color" content="#0a0a0a">
+<link rel="icon" type="image/png" href="images/favicon.png">
+<style>
+:root{--bg:#0a0a0a;--card:#141414;--card2:#0f0f0f;--border:#292929;--text:#fff;--muted:#aaa;--dim:#7a7a7a;--red:#ff2525;--red-dark:#a80f0f;--red-bg:rgba(255,37,37,.08)}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;min-height:100vh;background:radial-gradient(800px 380px at 50% -10%,#1a0a0a 0%,var(--bg) 62%) no-repeat,var(--bg);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}
+header{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:rgba(0,0,0,.88);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,37,37,.35)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand img{width:44px;height:44px;border-radius:12px;flex:none;box-shadow:0 0 0 1px var(--border)}
+.brand h2{margin:0;font-size:20px;font-weight:800;line-height:1.2;white-space:nowrap}
+.useremail{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:13px;margin-top:2px}
+.signout{display:inline-flex;align-items:center;gap:8px;flex:none;height:42px;padding:0 14px;border:1px solid var(--red);border-radius:12px;background:transparent;color:#fff;font-weight:600;font-size:14px;font-family:inherit;cursor:pointer}
+.signout:hover,.signout:active{background:var(--red);box-shadow:0 0 18px rgba(255,37,37,.4)}
+main{max-width:980px;margin:0 auto;padding:18px 14px 60px}
+h1{font-size:20px;margin:14px 0 4px}
+.sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat{padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--card)}
+.stat .val{font-size:26px;font-weight:800;color:var(--red)}
+.stat .label{margin-top:2px;font-size:13px;color:var(--muted)}
+.tablebox{border:1px solid var(--border);border-radius:14px;background:var(--card2);overflow:hidden;overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th{padding:13px 12px;text-align:left;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);background:#121212;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:14px 12px;font-size:14px;color:#eee;border-bottom:1px solid #202020;vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr:hover{background:rgba(255,37,37,.06)}
+td.num{color:var(--red);font-weight:700;text-align:center}
+td small{display:block;margin-top:2px;color:var(--dim);font-size:12px}
+.pname{font-weight:600}
+.pemail{color:var(--muted);font-size:12.5px;word-break:break-all}
+.buy{display:block;margin:0 0 2px;font-size:13px}
+.buy:last-child{margin-bottom:0}
+.none{color:var(--dim)}
+.state{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:12px;padding:26px 16px;text-align:center;color:var(--muted);border:1px solid var(--border);border-radius:14px;background:var(--card2);font-size:15px}
+.state.err{color:#ffb3b3;background:var(--red-bg);border-color:rgba(255,37,37,.55)}
+.state small{display:block;margin-top:6px;color:var(--dim);font-size:12.5px;line-height:1.5}
+.loading{color:var(--dim);text-align:center;padding:22px;font-size:14px}
+.note{display:flex;gap:12px;margin-top:14px;padding:14px 16px;font-size:13px;line-height:1.5;color:var(--muted);border:1px solid rgba(255,37,37,.4);border-radius:14px;background:var(--red-bg)}
+#login{max-width:360px;margin:60px auto;display:none}
+#login input{width:100%;padding:10px 12px;margin-bottom:12px;background:#171717;border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:15px}
+#login button{width:100%;padding:10px;background:linear-gradient(135deg,var(--red),var(--red-dark));color:#fff;font-weight:600;border:0;border-radius:6px;font-size:15px;cursor:pointer}
+#login .error{color:#f87171;font-size:13px;margin-bottom:10px}
+@media (max-width:480px){th,td{padding:11px 8px;font-size:13px}}
+</style></head><body>
+<header>
+  <div class="brand">
+    <img src="favicon.png" alt="" onerror="this.style.display='none'">
+    <div style="min-width:0">
+      <h2>Admin</h2>
+      <span class="useremail" id="userEmail"></span>
+    </div>
+  </div>
+  <button class="signout" id="signOut"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg><span>Sign out</span></button>
+</header>
+
+<div id="login">
+  <h1 style="text-align:center">Admin sign in</h1>
+  <p class="error" id="loginErr" style="display:none"></p>
+  <input type="email" id="em" placeholder="Admin email" autocomplete="username">
+  <input type="password" id="pw" placeholder="Password" autocomplete="current-password">
+  <button id="go">Sign in</button>
+</div>
+
+<main id="app" style="display:none">
+  <h1>Logins</h1>
+  <p class="sub">Who signed in, and what they bought, in the last 30 days. Updated automatically — nothing here can be edited.</p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>User</th><th>Last sign-in</th><th>Sign-ins</th><th>Purchased (30d)</th></tr></thead>
+      <tbody id="body"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody>
+    </table>
+  </div>
+  <div id="state"></div>
+  <div class="note">Only people signed in and listed in <b>admin_permissions</b> can see this page. Emails here are real customer data — do not share screenshots of this page.</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2"></script>
+<script src="admin-config.js"></script>
+<script>
+const esc = v => String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const $ = id => document.getElementById(id);
+
+if (typeof supabase === 'undefined' || typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON_KEY === 'undefined') {
+  document.body.innerHTML = '<div class="state err" style="max-width:460px;margin:60px auto">Could not load the admin system. Check your internet connection and reload.</div>';
+} else {
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+  async function start() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return showLogin();
+    const email = (session.user.email || '').toLowerCase();
+    const { data: perm } = await sb.from('admin_permissions').select('email').eq('email', email).maybeSingle();
+    if (!perm) { await sb.auth.signOut(); return showLogin('This account is not authorized as admin or sub-admin.'); }
+    $('userEmail').textContent = session.user.email;
+    $('login').style.display = 'none';
+    $('app').style.display = 'block';
+    load();
+  }
+
+  function showLogin(msg) {
+    $('app').style.display = 'none';
+    $('login').style.display = 'block';
+    if (msg) { $('loginErr').textContent = msg; $('loginErr').style.display = 'block'; }
+  }
+
+  $('go').onclick = async () => {
+    $('loginErr').style.display = 'none';
+    const { error } = await sb.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value });
+    $('pw').value = '';
+    if (error) { $('loginErr').textContent = error.message; $('loginErr').style.display = 'block'; return; }
+    start();
+  };
+
+  // The "orders" table's real column names are detected from the data itself — nothing is guessed or invented.
+  const CANDIDATES = {
+    email: ['buyer_email', 'email', 'customer_email', 'user_email'],
+    ebook: ['ebook_title', 'ebook', 'title', 'product', 'item'],
+    date: ['created_at', 'paid_at', 'inserted_at', 'date'],
+    status: ['status']
+  };
+  const find = (row, keys) => keys.find(k => row && row[k] !== undefined && row[k] !== null);
+
+  function legacyOrderRows(data) {
+    let rows = data || [];
+    const map = {};
+    for (const k in CANDIDATES) { for (const r of rows) { const f = find(r, CANDIDATES[k]); if (f) { map[k] = f; break; } } }
+    if (map.status) rows = rows.filter(r => !r[map.status] || ['paid', 'succeeded', 'complete', 'completed'].includes(String(r[map.status]).toLowerCase()));
+    return rows.map(r => ({
+      email: (map.email ? r[map.email] : '') || '',
+      title: (map.ebook ? r[map.ebook] : '') || 'Ebook',
+      date: map.date && r[map.date] ? new Date(r[map.date]) : null
+    })).filter(r => r.email && r.date && r.date >= since);
+  }
+
+  async function load() {
+    const [loginsRes, profilesRes, ebookRes, legacyRes] = await Promise.all([
+      sb.from('login_history').select('user_id,email,created_at').gte('created_at', since.toISOString()).order('created_at', { ascending: false }),
+      sb.from('profiles').select('email,display_name'),
+      sb.from('ebook_orders').select('email,ebook_title,status,created_at').gte('created_at', since.toISOString()),
+      sb.from('orders').select('*').limit(2000)
+    ]);
+
+    if (loginsRes.error && /relation .* does not exist/i.test(loginsRes.error.message || '')) {
+      $('body').innerHTML = '';
+      $('state').innerHTML = '<div class="state err"><b>Login history isn\'t set up yet.</b><small>Run <code>login-history.sql</code> in the Supabase SQL Editor first, then reload this page.</small></div>';
+      return;
+    }
+    if (loginsRes.error) {
+      $('body').innerHTML = '';
+      $('state').innerHTML = '<div class="state err"><b>Could not load logins.</b><small>' + esc(loginsRes.error.message) + '</small></div>';
+      return;
+    }
+
+    const rows = new Map(); // email -> { email, name, logins:[Date], purchases:[{title,date}] }
+    const rowFor = (rawEmail) => {
+      const email = (rawEmail || '').trim().toLowerCase();
+      if (!email) return null;
+      if (!rows.has(email)) rows.set(email, { email, name: null, logins: [], purchases: [] });
+      return rows.get(email);
+    };
+
+    (loginsRes.data || []).forEach(l => { const r = rowFor(l.email); if (r) r.logins.push(new Date(l.created_at)); });
+
+    const nameByEmail = {};
+    (profilesRes.data || []).forEach(p => { if (p.email) nameByEmail[p.email.trim().toLowerCase()] = p.display_name || null; });
+
+    (ebookRes.data || [])
+      .filter(o => !o.status || ['paid', 'succeeded', 'complete', 'completed'].includes(String(o.status).toLowerCase()))
+      .forEach(o => { const r = rowFor(o.email); if (r) r.purchases.push({ title: o.ebook_title || 'Ebook', date: new Date(o.created_at) }); });
+
+    legacyOrderRows(legacyRes.data).forEach(o => { const r = rowFor(o.email); if (r) r.purchases.push({ title: o.title, date: o.date }); });
+
+    rows.forEach(r => { r.name = nameByEmail[r.email] || null; });
+
+    const list = [...rows.values()].sort((a, b) => {
+      const la = a.logins[0] ? a.logins[0].getTime() : -1, lb = b.logins[0] ? b.logins[0].getTime() : -1;
+      return lb - la;
+    });
+
+    $('stats').innerHTML =
+      '<div class="stat"><div class="val">' + list.filter(r => r.logins.length).length + '</div><div class="label">Users signed in (30d)</div></div>' +
+      '<div class="stat"><div class="val">' + list.reduce((s, r) => s + r.purchases.length, 0) + '</div><div class="label">Purchases (30d)</div></div>';
+
+    if (!list.length) {
+      $('body').innerHTML = '';
+      $('state').innerHTML = '<div class="state">No sign-ins or purchases in the last 30 days.</div>';
+      return;
+    }
+
+    $('body').innerHTML = list.map(r => {
+      const last = r.logins[0];
+      const purchases = r.purchases.length
+        ? r.purchases.sort((a, b) => b.date - a.date).map(p => '<span class="buy">' + esc(p.title) + '<small>' + p.date.toLocaleDateString('en-IN') + '</small></span>').join('')
+        : '<span class="none">—</span>';
+      return '<tr>' +
+        '<td><div class="pname">' + esc(r.name || '(no name set)') + '</div><div class="pemail">' + esc(r.email) + '</div></td>' +
+        '<td>' + (last ? last.toLocaleDateString('en-IN') + '<small>' + last.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + '</small>' : '<span class="none">No sign-in in this window</span>') + '</td>' +
+        '<td class="num">' + r.logins.length + '</td>' +
+        '<td>' + purchases + '</td>' +
+        '</tr>';
+    }).join('');
+    $('state').innerHTML = '';
+  }
+
+  $('signOut').onclick = async () => { await sb.auth.signOut(); window.location.href = 'login.html'; };
+  start();
+}
+</script>
+<script src="admin-nav.js"></script>
+</body></html>

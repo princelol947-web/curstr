@@ -1,10 +1,11 @@
-// Tab bar shared by every admin page (Dashboard · Manage Content · Legal pages · Theme).
+// Tab bar shared by every admin page (Dashboard · Manage Content · Legal pages · Logins · Theme).
 // Add to a page with:  <script src="admin-nav.js"></script>   (the current page's tab is highlighted automatically)
 (function () {
   const TABS = [
     ['admin-dashboard.html', 'Dashboard'],
     ['admin-content.html', 'Manage Content'],
     ['admin-legal.html', 'Legal pages'],
+    ['admin-logins.html', 'Logins'],
     ['admin-theme.html', 'Theme']
   ];
   const here = (location.pathname.split('/').pop() || '').toLowerCase();
