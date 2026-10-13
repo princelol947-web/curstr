@@ -49,6 +49,7 @@
   td.amt{color:var(--red);font-weight:700;}
   td small{display:block;margin-top:2px;color:var(--dim);font-size:12px;}
   col.c1{width:34%;}col.c2{width:26%;}col.c3{width:17%;}col.c4{width:23%;}
+  col.lc1{width:62%;}col.lc2{width:38%;}
   .state{display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:12px;padding:26px 16px;text-align:center;color:var(--muted);border:1px solid var(--border);border-radius:14px;background:var(--card2);font-size:15px;}
   .state svg{color:var(--dim);}
   .state.err{color:#ffb3b3;background:var(--red-bg);border-color:rgba(255,37,37,.55);}
@@ -90,6 +91,18 @@
     </div>
     <div id="buyersState"></div>
     <div class="note"><span class="i">i</span><span class="sep"></span><span>Buyer emails older than 30 days are hidden from this view.<br>Full order records stay in Supabase for accounting purposes.</span></div>
+  </section>
+
+  <section class="panel">
+    <h2><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>Login history (all time)</h2>
+    <div class="tablebox">
+      <table>
+        <colgroup><col class="lc1"><col class="lc2"></colgroup>
+        <thead><tr><th>Email</th><th>Date &amp; time</th></tr></thead>
+        <tbody id="loginsBody"><tr><td colspan="2" class="loading">Loading logins…</td></tr></tbody>
+      </table>
+    </div>
+    <div id="loginsState"></div>
   </section>
 </main>
 
@@ -148,13 +161,19 @@
         return { email: r[map.email], ebook: r[map.ebook], amount, sym: SYMBOLS[cur] || cur + ' ', date: map.date ? new Date(r[map.date]) : null };
       });
 
-      // Logins (30d): from login_history (see login-history.sql). Shows "—" if that hasn't been run yet,
+      // Logins (all time): from login_history (see login-history.sql). Shows "—" if that hasn't been run yet,
       // rather than breaking the rest of the dashboard.
-      let loginCount = null;
-      const loginsRes = await sb.from('login_history').select('*', { count: 'exact', head: true }).gte('created_at', new Date(since).toISOString());
-      if (!loginsRes.error) loginCount = loginsRes.count;
+      let loginCount = null, loginRows = [], loginsErr = null;
+      const LOGIN_LIMIT = 200;
+      const [loginsCountRes, loginsListRes] = await Promise.all([
+        sb.from('login_history').select('*', { count: 'exact', head: true }),
+        sb.from('login_history').select('email, created_at').order('created_at', { ascending: false }).limit(LOGIN_LIMIT)
+      ]);
+      if (!loginsCountRes.error) loginCount = loginsCountRes.count;
+      if (loginsListRes.error) loginsErr = loginsListRes.error; else loginRows = loginsListRes.data || [];
 
       renderStats(buyers, loginCount); renderHourly(buyers); renderTable(buyers);
+      renderLogins(loginRows, loginCount, loginsErr);
     }
 
     function showError(msg) {
@@ -162,6 +181,8 @@
       document.getElementById('chart').innerHTML = '<div class="state err" style="flex:1;margin:0">' + ICON_WARN + 'Couldn\'t load purchase statistics.</div>';
       document.getElementById('buyersBody').innerHTML = '';
       document.getElementById('buyersState').innerHTML = '<div class="state err">' + ICON_WARN + '<b>Couldn\'t load buyers</b>' + esc(msg) + '<small>Check that the "orders" table exists and that your admin account is allowed to read it.</small></div>';
+      document.getElementById('loginsBody').innerHTML = '';
+      document.getElementById('loginsState').innerHTML = '<div class="state">' + ICON_USERS + 'Skipped — fix the buyers error above first.</div>';
     }
 
     function renderStats(b, loginCount) {
@@ -169,7 +190,7 @@
       document.getElementById('stats').innerHTML =
         '<div class="stat"><div class="val">' + b.length + '</div><div class="label">Buyers (30d)</div></div>' +
         '<div class="stat"><div class="val">' + sym + total.toLocaleString('en-IN', { maximumFractionDigits: 2 }) + '</div><div class="label">Revenue (30d)</div></div>' +
-        '<div class="stat"><div class="val">' + (loginCount == null ? '—' : loginCount) + '</div><div class="label">Logins (30d)</div></div>';
+        '<div class="stat"><div class="val">' + (loginCount == null ? '—' : loginCount) + '</div><div class="label">Logins (all time)</div></div>';
     }
 
     function renderHourly(b) {
@@ -195,6 +216,29 @@
         (x.amount == null ? '—' : x.sym + x.amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })) + '</td><td>' +
         (x.date ? x.date.toLocaleDateString('en-GB') + '<small>' + x.date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + '</small>' : '—') + '</td></tr>').join('');
       st.innerHTML = '<div class="state">' + ICON_USERS + 'No more buyer records</div>';
+    }
+
+    function renderLogins(rows, total, err) {
+      const body = document.getElementById('loginsBody'), st = document.getElementById('loginsState');
+      if (err) {
+        body.innerHTML = '';
+        st.innerHTML = '<div class="state err">' + ICON_WARN + '<b>Couldn\'t load login history</b>' + esc(err.message || '') +
+          '<small>Run login-history.sql in Supabase if you haven\'t yet.</small></div>';
+        return;
+      }
+      if (!rows.length) {
+        body.innerHTML = '';
+        st.innerHTML = '<div class="state">' + ICON_USERS + 'No logins recorded yet.</div>';
+        return;
+      }
+      body.innerHTML = rows.map(r => {
+        const d = r.created_at ? new Date(r.created_at) : null;
+        return '<tr><td>' + esc(r.email || '—') + '</td><td>' +
+          (d ? d.toLocaleDateString('en-GB') + '<small>' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) + '</small>' : '—') + '</td></tr>';
+      }).join('');
+      st.innerHTML = (total != null && total > rows.length)
+        ? '<div class="state">' + ICON_USERS + total + ' logins total · showing the most recent ' + rows.length + '</div>'
+        : '<div class="state">' + ICON_USERS + (total == null ? rows.length : total) + ' login' + ((total == null ? rows.length : total) === 1 ? '' : 's') + ' total</div>';
     }
 
     document.getElementById('signOut').addEventListener('click', async () => {
