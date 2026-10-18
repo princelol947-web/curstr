@@ -61,6 +61,14 @@
   .zoom-btn svg { width:16px; height:16px; }
   .zoom-btn:hover { background:rgba(239,68,68,0.5); }
   .zoom-btn:active { transform:scale(0.9); }
+  .wish-btn { position:absolute; top:8px; right:8px; z-index:2; background:rgba(255,255,255,0.15); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,0.3);
+              color:#fff; width:30px; height:30px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+              transition:transform 0.15s ease, background 0.15s ease; }
+  .wish-btn svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; }
+  .wish-btn:hover { background:rgba(239,68,68,0.5); }
+  .wish-btn:active { transform:scale(0.9); }
+  .wish-btn.saved { background:var(--accent); border-color:var(--accent); }
+  .wish-btn.saved svg { fill:#fff; }
   .sold-badge { position:absolute; inset:0; background:rgba(0,0,0,0.72); display:flex; align-items:center; justify-content:center;
                 color:#fff; font-weight:700; font-size:14px; letter-spacing:0.05em; text-align:center; }
   .card h3 { margin:0 0 4px; font-size:16px; }
@@ -238,6 +246,9 @@
               <path d="M14 7h3v3"/><path d="M7 14v3h3"/>
             </svg>
           </button>
+          <button type="button" class="wish-btn${wishlistSet.has(b.title) ? ' saved' : ''}" data-wish="${escHtml(b.title)}" title="Save to wishlist" aria-label="Save to wishlist">
+            <svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-10-9.3C.4 7.8 2 4.5 5.3 4A5 5 0 0 1 12 7a5 5 0 0 1 6.7-3c3.3.5 4.9 3.8 3.3 7.2-2.5 4.7-10 9.3-10 9.3Z"/></svg>
+          </button>
           ${b.cover_image
             ? `<img class="cover" src="${safeUrl(b.cover_image)}" alt="${escHtml(b.title)} cover">`
             : `<div class="cover-fallback" style="background:${safeColor(b.color)}"></div>`}
@@ -256,11 +267,34 @@
     document.querySelectorAll('[data-zoom]').forEach(btn => {
       btn.addEventListener('click', () => openZoom(ebooks[+btn.dataset.zoom]));
     });
+    document.querySelectorAll('[data-wish]').forEach(btn => {
+      btn.addEventListener('click', () => toggleWish(btn.dataset.wish, btn));
+    });
 
     currentRenderedEbooks = ebooks;
   }
 
   let currentRenderedEbooks = [];
+  let currentUser = null;
+  let wishlistSet = new Set();
+
+  // Saving to a wishlist needs an account (it's saved to their profile, not just this browser),
+  // so a signed-out tap sends them to sign in first rather than silently failing.
+  async function toggleWish(title, btn) {
+    if (!sbClient) return;
+    if (!currentUser) { window.location.href = 'login.html?redirect=ebooks.html'; return; }
+    const saved = wishlistSet.has(title);
+    btn.disabled = true;
+    if (saved) {
+      const { error } = await sbClient.from('wishlist').delete().eq('user_id', currentUser.id).eq('ebook_title', title);
+      if (!error) { wishlistSet.delete(title); btn.classList.remove('saved'); }
+    } else {
+      const { error } = await sbClient.from('wishlist').insert({ user_id: currentUser.id, email: currentUser.email, ebook_title: title });
+      if (!error) { wishlistSet.add(title); btn.classList.add('saved'); }
+    }
+    btn.disabled = false;
+  }
+  let sbClient = null;
 
   // Ticks every second: updates visible countdown text, and re-renders
   // automatically the moment any timer hits zero so the ebook unlocks
@@ -282,8 +316,15 @@
     if (typeof supabase !== 'undefined') {
       try {
         sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        sbClient = sb;
         const { data, error } = await sb.from('site_content').select('value').eq('key', 'ebooks').single();
         if (!error && data && data.value && data.value.length) ebooks = data.value;
+        const { data: { session } } = await sb.auth.getSession();
+        if (session) {
+          currentUser = session.user;
+          const { data: wish } = await sb.from('wishlist').select('ebook_title');
+          if (wish) wishlistSet = new Set(wish.map(w => w.ebook_title));
+        }
       } catch (e) { /* fall back to defaults below */ }
     }
     renderGrid(ebooks);
@@ -345,5 +386,6 @@
 <script src="blaze-config.js"></script>
 <script src="blaze-coins.js"></script>
 <script src="checkout.js"></script>
+<script src="customer-nav.js"></script>
 </body>
 </html>

@@ -288,7 +288,7 @@
 
   .banner {
     position: fixed;
-    bottom: 0;
+    bottom: calc(64px + env(safe-area-inset-bottom));
     left: 0;
     right: 0;
     background: var(--bg-elevated);
@@ -855,5 +855,6 @@
 <script src="blaze-config.js"></script>
 <script src="blaze-coins.js"></script>
 <script src="chatbot.js"></script>
+<script src="customer-nav.js"></script>
 </body>
 </html>
