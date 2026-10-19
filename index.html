@@ -414,6 +414,92 @@
 </head>
 <body>
 
+<!-- Entrance moment: a brief brand video before the homepage appears underneath. Plays once per browser
+     session (not on every return to Home), ends when the clip finishes or on a tap, and is skipped
+     entirely for prefers-reduced-motion. Purely a cosmetic curtain — the real page underneath is
+     rendering normally the whole time, so this never gates or delays it.
+     Sound: phones don't allow a video to autoplay WITH sound, only muted — so it starts muted (silent
+     autoplay always works) with a small speaker button to turn the sound effects on; tapping it restarts
+     the clip from the top so the sound lines up with the visuals. -->
+<script>
+  try {
+    if (sessionStorage.getItem('ctSplashSeen')) document.documentElement.classList.add('ct-no-splash');
+    else sessionStorage.setItem('ctSplashSeen', '1');
+  } catch (e) {}
+</script>
+<style>
+  .ct-no-splash #introSplash { display: none; }
+  #introSplash { position: fixed; inset: 0; z-index: 99999; background: #050505; display: flex;
+    align-items: center; justify-content: center; cursor: pointer; }
+  #introSplash video { width: 100%; height: 100%; object-fit: cover; display: block; background: #050505; }
+  #introSplash .ct-sound { all: unset; box-sizing: border-box; position: absolute;
+    right: 18px; bottom: calc(18px + env(safe-area-inset-bottom)); width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(10,10,10,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center;
+    cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  #introSplash .ct-sound svg { width: 20px; height: 20px; fill: none; stroke: #f5f5f5; stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round; }
+  #introSplash .ct-sound #ctSoundWave { display: none; }
+  #introSplash .ct-sound.on #ctSoundMute { display: none; }
+  #introSplash .ct-sound.on #ctSoundWave { display: inline; }
+  #introSplash.ct-leave { animation: ctLeave .45s ease-in forwards; }
+  @keyframes ctLeave { to { opacity: 0; } }
+</style>
+<div id="introSplash" role="presentation" aria-hidden="true">
+  <video id="introVideo" src="intro.mp4" poster="intro-poster.jpg" muted autoplay playsinline preload="auto"></video>
+  <button type="button" class="ct-sound" id="introSound" aria-label="Turn sound on">
+    <svg viewBox="0 0 24 24">
+      <path d="M4 9v6h4l5 5V4L8 9H4Z"/>
+      <path id="ctSoundMute" d="M16 9l5 5m0-5-5 5"/>
+      <path id="ctSoundWave" d="M16 8.5a5 5 0 0 1 0 7"/>
+    </svg>
+  </button>
+</div>
+<script>
+(function () {
+  var el = document.getElementById('introSplash');
+  if (!el) return;
+  if (document.documentElement.classList.contains('ct-no-splash')) { el.remove(); return; }
+
+  function leave() {
+    if (el.dataset.leaving) return;
+    el.dataset.leaving = '1';
+    el.classList.add('ct-leave');
+    el.addEventListener('animationend', function () { el.remove(); }, { once: true });
+    setTimeout(function () { if (el.parentNode) el.remove(); }, 500);
+  }
+
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var video = document.getElementById('introVideo');
+  var soundBtn = document.getElementById('introSound');
+  if (reduced || !video) { leave(); return; }
+
+  var safetyTimer = setTimeout(leave, 6500); // in case the clip never loads/plays (slow network, blocked, etc.)
+  video.addEventListener('ended', leave);
+  video.addEventListener('error', leave);
+  video.play().catch(function () {}); // attributes already request autoplay; this is just a backstop
+
+  soundBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    clearTimeout(safetyTimer);
+    if (video.muted) {
+      video.muted = false;
+      video.currentTime = 0;
+      video.play().catch(function () {});
+      soundBtn.classList.add('on');
+      soundBtn.setAttribute('aria-label', 'Turn sound off');
+    } else {
+      video.muted = true;
+      soundBtn.classList.remove('on');
+      soundBtn.setAttribute('aria-label', 'Turn sound on');
+    }
+    safetyTimer = setTimeout(leave, 6500);
+  });
+
+  el.addEventListener('click', leave);
+})();
+</script>
+
 <canvas id="bg-canvas"></canvas>
 
 <nav>
