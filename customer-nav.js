@@ -53,4 +53,93 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom)) !important;}
     nav.appendChild(a);
   });
   document.body.appendChild(nav);
+
+  // A third-party widget on the page (e.g. a support chat bubble from chatbot.js) can float at a fixed
+  // position that now collides with this bar — on index.html it was observed sitting right on top of the
+  // Profile tab. We don't control that script's source, so instead of guessing its id/class, find any
+  // element that actually overlaps this bar's own box and nudge it up to clear the bar.
+  //
+  // Many embeddable chat widgets (Tawk.to/Crisp/Intercom/Tidio-style) don't make the round bubble itself
+  // the fixed element — they wrap it in a FULL-SCREEN `position:fixed` container (so it can later expand
+  // into a full chat window), with `pointer-events:none` on that wrapper and the actual small, clickable
+  // button positioned *inside* it. A plain "find a small fixed element" check misses that pattern entirely
+  // (the fixed element is huge, not small), so this also looks at small elements nested inside a fixed
+  // ancestor, which is what the visible round bubble usually is in that setup.
+  function clearOverlappingWidgets() {
+    const navRect = nav.getBoundingClientRect();
+    if (!navRect.width || !navRect.height) return;
+    const MAX_DIM = 170; // a real launcher button/badge is roughly 40-110px; this covers padding/shadow
+    // without ever matching a full-page overlay or an ordinary content block.
+
+    function inFixedSubtree(el) {
+      let node = el.parentElement;
+      while (node && node !== document.body) {
+        if (getComputedStyle(node).position === 'fixed') return true;
+        node = node.parentElement;
+      }
+      return false;
+    }
+    function hasClearedAncestor(el) {
+      let node = el.parentElement;
+      while (node && node !== document.body) {
+        if (node.dataset && node.dataset.cbarCleared === '1') return true;
+        node = node.parentElement;
+      }
+      return false;
+    }
+
+    // Walk every element on the page (not just body's direct children) — the real bubble is often nested
+    // a few levels inside its own widget's wrapper markup, not a direct child of <body>.
+    document.querySelectorAll('body *').forEach(el => {
+      if (el === nav || nav.contains(el)) return;
+      if (el.closest('#introSplash')) return;
+      if (el.dataset.cbarCleared === '1') return;
+      if (hasClearedAncestor(el)) { el.dataset.cbarCleared = '1'; return; } // its already-moved ancestor carries it along
+
+      const cs = getComputedStyle(el);
+      if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) === 0) return;
+      if (cs.pointerEvents === 'none') return; // a decorative/pass-through wrapper, not the real tap target
+
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      if (r.width > MAX_DIM || r.height > MAX_DIM) return; // not button-sized — skip (covers both a huge
+      // overlay wrapper AND ordinary page content, neither of which should ever get nudged)
+
+      const overlaps = r.right > navRect.left && r.left < navRect.right && r.bottom > navRect.top && r.top < navRect.bottom;
+      if (!overlaps) return;
+
+      // Only touch something that's actually floating above the page, not in-flow content that merely
+      // happens to be small and near the bottom of the viewport right now (e.g. a card while scrolling).
+      const floating = cs.position === 'fixed' || cs.position === 'sticky' || (cs.position === 'absolute' && inFixedSubtree(el));
+      if (!floating) return;
+
+      const needed = navRect.height + 14;
+      const curBottom = parseFloat(cs.bottom);
+      if (!isNaN(curBottom)) {
+        el.style.setProperty('bottom', `calc(${curBottom}px + ${needed}px + env(safe-area-inset-bottom))`, 'important');
+      } else {
+        // Not positioned via "bottom" (e.g. placed with a transform instead) — shift it up visually either way.
+        const curT = cs.transform && cs.transform !== 'none' ? cs.transform + ' ' : '';
+        el.style.setProperty('transform', `${curT}translateY(-${needed}px)`, 'important');
+      }
+      el.dataset.cbarCleared = '1';
+    });
+  }
+
+  clearOverlappingWidgets();
+  // Widely spaced retries cover widgets that load their bubble late over the network (slow 3G, a third-party
+  // CDN, etc.) — up to 8s after page load.
+  [150, 400, 800, 1500, 3000, 5000, 8000].forEach(ms => setTimeout(clearOverlappingWidgets, ms));
+  // A widget that already exists but animates/resizes itself into place (rather than inserting a brand-new
+  // element) only fires a style/class change, not a childList change — watch both, debounced to one check
+  // per animation frame so this stays cheap even on a page with other frequent DOM activity.
+  let pendingCheck = false;
+  function scheduleCheck() {
+    if (pendingCheck) return;
+    pendingCheck = true;
+    requestAnimationFrame(function () { pendingCheck = false; clearOverlappingWidgets(); });
+  }
+  new MutationObserver(scheduleCheck).observe(document.body, {
+    childList: true, subtree: true, attributes: true, attributeFilter: ['style', 'class']
+  });
 })();
