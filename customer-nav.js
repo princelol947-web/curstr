@@ -3,10 +3,10 @@
 // The page's own <body> gets bottom padding so this bar never covers content — no other changes needed.
 (function () {
   const TABS = [
-    ['index.html', 'Home', '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/>'],
-    ['read.html', 'Read', '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5Z"/>'],
-    ['wishlist.html', 'Wishlist', '<path d="M12 20.5s-7.5-4.6-10-9.3C.4 7.8 2 4.5 5.3 4A5 5 0 0 1 12 7a5 5 0 0 1 6.7-3c3.3.5 4.9 3.8 3.3 7.2-2.5 4.7-10 9.3-10 9.3Z"/>'],
-    ['my-account.html', 'Profile', '<circle cx="12" cy="8" r="3.5"/><path d="M4.5 20v-.5a7.5 7.5 0 0 1 15 0v.5"/>']
+    ['index.html', 'Home', 'svg', '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/>'],
+    ['read.html', 'Read', 'svg', '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5Z"/>'],
+    ['wishlist.html', 'Wishlist', 'emoji', '💕'],
+    ['my-account.html', 'Profile', 'svg', '<circle cx="12" cy="8" r="3.5"/><path d="M4.5 20v-.5a7.5 7.5 0 0 1 15 0v.5"/>']
   ];
   const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
 
@@ -28,7 +28,8 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom)) !important;}
 .cbar a .ico{display:flex;align-items:center;justify-content:center;width:50px;height:38px;border-radius:19px;
   transition:background-color .18s ease,color .18s ease;}
 .cbar a svg{width:23px;height:23px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .15s ease;}
-.cbar a:active .ico svg{transform:scale(.88);}
+.cbar a .emoji-ico{font-size:19px;line-height:1;display:flex;align-items:center;justify-content:center;transition:transform .15s ease;}
+.cbar a:active .ico svg,.cbar a:active .ico .emoji-ico{transform:scale(.88);}
 .cbar a:focus-visible .ico{outline:2px solid #ef4444;outline-offset:-2px;}
 .cbar a[aria-current="page"]{color:#fff;}
 .cbar a[aria-current="page"] .ico{background:#ef4444;}
@@ -44,12 +45,15 @@ body{padding-bottom:calc(64px + env(safe-area-inset-bottom)) !important;}
   nav.className = 'cbar';
   nav.setAttribute('role', 'navigation');
   nav.setAttribute('aria-label', 'Main sections');
-  TABS.forEach(([href, label, svg]) => {
+  TABS.forEach(([href, label, kind, content]) => {
     const a = document.createElement('a');
     a.href = href;
     a.setAttribute('aria-label', label);
     if (href === here) a.setAttribute('aria-current', 'page');
-    a.innerHTML = `<span class="ico"><svg viewBox="0 0 24 24">${svg}</svg></span><span class="sr-only">${label}</span>`;
+    const iconHtml = kind === 'emoji'
+      ? `<span class="emoji-ico" aria-hidden="true">${content}</span>`
+      : `<svg viewBox="0 0 24 24">${content}</svg>`;
+    a.innerHTML = `<span class="ico">${iconHtml}</span><span class="sr-only">${label}</span>`;
     nav.appendChild(a);
   });
   document.body.appendChild(nav);

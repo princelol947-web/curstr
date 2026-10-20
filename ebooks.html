@@ -64,11 +64,10 @@
   .wish-btn { position:absolute; top:8px; right:8px; z-index:2; background:rgba(255,255,255,0.15); backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,0.3);
               color:#fff; width:30px; height:30px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center;
               transition:transform 0.15s ease, background 0.15s ease; }
-  .wish-btn svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; }
+  .wish-btn .wish-emoji { font-size:15px; line-height:1; }
   .wish-btn:hover { background:rgba(239,68,68,0.5); }
   .wish-btn:active { transform:scale(0.9); }
   .wish-btn.saved { background:var(--accent); border-color:var(--accent); }
-  .wish-btn.saved svg { fill:#fff; }
   .sold-badge { position:absolute; inset:0; background:rgba(0,0,0,0.72); display:flex; align-items:center; justify-content:center;
                 color:#fff; font-weight:700; font-size:14px; letter-spacing:0.05em; text-align:center; }
   .card h3 { margin:0 0 4px; font-size:16px; }
@@ -250,7 +249,7 @@
             </svg>
           </button>
           <button type="button" class="wish-btn${wishlistSet.has(b.title) ? ' saved' : ''}" data-wish="${escHtml(b.title)}" title="Save to wishlist" aria-label="Save to wishlist">
-            <svg viewBox="0 0 24 24"><path d="M12 20.5s-7.5-4.6-10-9.3C.4 7.8 2 4.5 5.3 4A5 5 0 0 1 12 7a5 5 0 0 1 6.7-3c3.3.5 4.9 3.8 3.3 7.2-2.5 4.7-10 9.3-10 9.3Z"/></svg>
+            <span class="wish-emoji" aria-hidden="true">💕</span>
           </button>
           ${b.cover_image
             ? `<img class="cover" src="${safeUrl(b.cover_image)}" alt="${escHtml(b.title)} cover">`
