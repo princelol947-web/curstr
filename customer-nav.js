@@ -5,7 +5,7 @@
   const TABS = [
     ['index.html', 'Home', 'svg', '<path d="M3 11.5 12 4l9 7.5"/><path d="M5 10v9a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1v-9"/>'],
     ['read.html', 'Read', 'svg', '<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5Z"/>'],
-    ['wishlist.html', 'Wishlist', 'emoji', '💕'],
+    ['wishlist.html', 'Wishlist', 'svg', '<path d="M12 20.5s-7.5-4.6-10-9.3C.4 7.8 2 4.5 5.3 4A5 5 0 0 1 12 7a5 5 0 0 1 6.7-3c3.3.5 4.9 3.8 3.3 7.2-2.5 4.7-10 9.3-10 9.3Z"/>'],
     ['my-account.html', 'Profile', 'svg', '<circle cx="12" cy="8" r="3.5"/><path d="M4.5 20v-.5a7.5 7.5 0 0 1 15 0v.5"/>']
   ];
   const here = (location.pathname.split('/').pop() || 'index.html').toLowerCase();

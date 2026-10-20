@@ -414,21 +414,14 @@
 </head>
 <body>
 
-<!-- Entrance moment: a brief brand video before the homepage appears underneath. Plays once per browser
-     session (not on every return to Home), ends when the clip finishes or on a tap, and is skipped
-     entirely for prefers-reduced-motion. Purely a cosmetic curtain — the real page underneath is
-     rendering normally the whole time, so this never gates or delays it.
+<!-- Entrance moment: a brief brand video before the homepage appears underneath. Plays on every visit
+     (every load/reload), ends when the clip finishes or on a tap, and is skipped entirely for
+     prefers-reduced-motion. Purely a cosmetic curtain — the real page underneath is rendering normally
+     the whole time, so this never gates or delays it.
      Sound: phones don't allow a video to autoplay WITH sound, only muted — so it starts muted (silent
      autoplay always works) with a small speaker button to turn the sound effects on; tapping it restarts
      the clip from the top so the sound lines up with the visuals. -->
-<script>
-  try {
-    if (sessionStorage.getItem('ctSplashSeen')) document.documentElement.classList.add('ct-no-splash');
-    else sessionStorage.setItem('ctSplashSeen', '1');
-  } catch (e) {}
-</script>
 <style>
-  .ct-no-splash #introSplash { display: none; }
   #introSplash { position: fixed; inset: 0; z-index: 99999; background: #050505; display: flex;
     align-items: center; justify-content: center; cursor: pointer; }
   #introSplash video { width: 100%; height: 100%; object-fit: cover; display: block; background: #050505; }
@@ -459,7 +452,6 @@
 (function () {
   var el = document.getElementById('introSplash');
   if (!el) return;
-  if (document.documentElement.classList.contains('ct-no-splash')) { el.remove(); return; }
 
   function leave() {
     if (el.dataset.leaving) return;
