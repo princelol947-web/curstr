@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://checkout.razorpay.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https: wss:; frame-src https://api.razorpay.com https://checkout.razorpay.com; form-action 'self'; base-uri 'self'; object-src 'none'">
+<title>Chat — Curse Trading</title>
+<meta name="theme-color" content="#0a0a0a">
+<meta name="description" content="Chat with us about buying, delivery, refunds and our policies.">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<style>
+  :root{--bg:#0a0a0a;--bg-elevated:#171717;--border:#262626;--text:#f5f5f5;--text-muted:#a3a3a3;--text-dim:#8c8c8c;--accent:#ef4444;--accent-dark:#991b1b;}
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;
+    display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;}
+  header{flex:none;display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border);}
+  header .brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:var(--text);}
+  header .brand img{height:30px;width:30px;object-fit:contain;display:block;}
+  header .titles{display:flex;flex-direction:column;line-height:1.25;}
+  header .titles strong{font-size:15px;}
+  header .titles span{font-size:12px;color:var(--text-dim);display:flex;align-items:center;gap:5px;}
+  header .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;display:inline-block;}
+
+  .chat-wrap{flex:1;display:flex;flex-direction:column;min-height:0;max-width:640px;margin:0 auto;width:100%;padding:0 16px;}
+  #chatMessages{flex:1;overflow-y:auto;padding:16px 0;display:flex;flex-direction:column;gap:10px;justify-content:flex-end;}
+  .ct-msg{max-width:85%;padding:10px 13px;border-radius:12px;font-size:14px;line-height:1.55;}
+  .ct-msg a{color:#fca5a5;}
+  .ct-msg.bot{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text);align-self:flex-start;border-bottom-left-radius:4px;}
+  .ct-msg.user{background:linear-gradient(135deg,var(--accent),var(--accent-dark));color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+  .ct-suggest{display:flex;flex-wrap:wrap;gap:7px;padding:2px 0 10px;}
+  .ct-suggest button{background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-muted);border-radius:999px;
+    padding:7px 12px;font-size:12.5px;cursor:pointer;font-family:inherit;}
+  .ct-suggest button:hover{border-color:var(--accent);color:#fff;}
+
+  .chat-inputbar{flex:none;padding:10px 0 14px;border-top:1px solid var(--border);display:flex;gap:8px;}
+  #chatInput{flex:1;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;padding:12px 14px;
+    color:#fff;font-size:14px;font-family:inherit;}
+  #chatInput:focus{outline:none;border-color:var(--accent);}
+  #chatSend{background:linear-gradient(135deg,var(--accent),var(--accent-dark));border:0;border-radius:10px;
+    color:#fff;font-weight:600;font-size:13.5px;padding:0 18px;cursor:pointer;font-family:inherit;}
+  #chatSend:active{filter:brightness(0.92);}
+</style>
+</head>
+<body>
+<header>
+  <a href="index.html" class="brand" aria-label="Home"><img src="data:image/png;base64,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" alt="Curse Trading logo" width="30" height="30">
+    <span class="titles"><strong>Curse Trading</strong><span><span class="dot"></span>Always here — automated replies</span></span>
+  </a>
+</header>
+
+<div class="chat-wrap">
+  <div id="chatMessages"></div>
+  <div class="chat-inputbar">
+    <input id="chatInput" type="text" placeholder="Ask about buying, refunds, delivery…" autocomplete="off">
+    <button id="chatSend" type="button">Send</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  // Same rule-based FAQ as the floating chat widget (chatbot.js) — kept in sync by hand since this is a
+  // tiny, self-contained Q&A list, not a reusable module. Zero access to buyer/order/admin data, by design.
+  const FAQ = [
+    { keys: ['buy', 'purchase', 'how do i get', 'how to order'],
+      a: 'Browse the <a href="ebooks.html">Ebooks page</a>, tap "Buy now" on any title, and complete payment securely. Your download link is emailed to you right after.' },
+    { keys: ['refund', 'money back', 'cancel'],
+      a: 'Refunds are available for corrupted files, wrong titles, or double charges — usually within 7 days of purchase. Full details on our <a href="refund-policy.html">Refund Policy</a> page.' },
+    { keys: ['deliver', 'download', 'where is my book', "didn't receive", 'havent received'],
+      a: 'Your ebook is emailed as a download link right after payment confirms. Check spam if it hasn\'t arrived — if it\'s still missing, contact us and we\'ll resend it.' },
+    { keys: ['privacy', 'my data', 'my email', 'safe'],
+      a: 'We only use your email to deliver your purchase — we never sell or share it. Full details on our <a href="privacy.html">Privacy Policy</a> page.' },
+    { keys: ['terms', 'condition', 'license', 'resell'],
+      a: 'Buying an ebook gives you a personal license to read it — reselling or redistributing isn\'t allowed. See our <a href="terms.html">Terms & Conditions</a>.' },
+    { keys: ['who runs', 'who owns', 'seller', 'company', 'about'],
+      a: 'This store is run by a single independent seller — every ebook is sold directly, no distributor or reseller involved.' },
+    { keys: ['contact', 'reach', 'support', 'help', 'grievance', 'complaint'],
+      a: 'You can reach us directly at the contact listed on our <a href="privacy.html">Privacy Policy</a> page.' },
+    { keys: ['payment', 'pay', 'card', 'upi'],
+      a: 'Checkout is handled through a secure payment page — you\'ll see the accepted payment options at checkout.' },
+    { keys: ['lost', 'again', 'redownload', 're-download'],
+      a: 'If you lose your download link, just contact us with your order details and we\'ll help you get it again.' },
+    { keys: ['hi', 'hello', 'hey'],
+      a: 'Hey! I can help with questions about buying, refunds, delivery, or our policies. What do you need?' },
+  ];
+  const FALLBACK = 'I\'m not sure about that one — I can only help with questions about buying, refunds, delivery, and our policies. For anything else, please reach out directly via our <a href="privacy.html">contact info</a>.';
+  const PRIVACY_DEFLECT = 'I don\'t have access to any buyer, order, or admin information — I can only answer general questions about how the store works.';
+  const PRIVATE_TOPIC_WORDS = ['buyer', 'customer list', 'order id', 'admin', 'password', 'who bought', 'someone else', 'their email', 'his email', 'her email'];
+  const SUGGESTIONS = ['How do I buy an ebook?', 'What\'s your refund policy?', 'Where\'s my download?'];
+
+  function findAnswer(text) {
+    const t = text.toLowerCase();
+    if (PRIVATE_TOPIC_WORDS.some(w => t.includes(w))) return PRIVACY_DEFLECT;
+    for (const entry of FAQ) { if (entry.keys.some(k => t.includes(k))) return entry.a; }
+    return FALLBACK;
+  }
+
+  const messages = document.getElementById('chatMessages');
+  const input = document.getElementById('chatInput');
+
+  function addMessage(text, who) {
+    const div = document.createElement('div');
+    div.className = 'ct-msg ' + who;
+    div.innerHTML = text;
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function addSuggestions() {
+    const row = document.createElement('div');
+    row.className = 'ct-suggest';
+    SUGGESTIONS.forEach(q => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = q;
+      b.addEventListener('click', () => { input.value = q; send(); });
+      row.appendChild(b);
+    });
+    messages.appendChild(row);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function send() {
+    const text = input.value.trim();
+    if (!text) return;
+    addMessage(text.replace(/</g, '&lt;'), 'user');
+    input.value = '';
+    setTimeout(() => addMessage(findAnswer(text), 'bot'), 300);
+  }
+
+  document.getElementById('chatSend').addEventListener('click', send);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+
+  addMessage('Hi! Ask me about buying, delivery, refunds, or our policies — I\'m here 24/7.', 'bot');
+  addSuggestions();
+  input.focus();
+})();
+</script>
+<script src="customer-nav.js"></script>
+</body></html>
