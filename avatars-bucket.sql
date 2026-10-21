@@ -9,12 +9,11 @@ insert into storage.buckets (id, name, public)
 values ('avatars', 'avatars', true)
 on conflict (id) do update set public = true;
 
--- 2) RLS is on by default for storage.objects — these policies say who may upload/replace files,
---    without turning RLS off. The app saves each file as "<their-own-user-id>-<timestamp>" (no
---    folder), so the policy checks the filename is prefixed with the uploader's own user id —
---    never someone else's.
-alter table storage.objects enable row level security;
-
+-- 2) RLS is ALREADY on by default for storage.objects on every Supabase project (and can't be
+--    turned off here even if we wanted to — the SQL Editor's role isn't the table's owner, which
+--    is exactly why "alter table storage.objects enable row level security" fails with
+--    "must be owner of table objects"). These policies just say who may upload/replace files;
+--    creating a policy doesn't require table ownership, only the ALTER TABLE line did.
 drop policy if exists "avatars: owner can upload" on storage.objects;
 create policy "avatars: owner can upload"
 on storage.objects for insert
